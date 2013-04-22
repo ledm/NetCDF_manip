@@ -13,7 +13,7 @@
 # It creates a new netcdf that contains only the variables that you gave it. 
 # It can also perform depth integration, if needed. (Assuming that the 2nd column is depth, and that there's a 5D 'zbnd' variable in the input file.)
 
-from ncdfView import ncdfView
+#from ncdfView import ncdfView
 try:	from netCDF4 import Dataset, default_fillvals
 except: from netCDF4 import Dataset, _default_fillvals
 from datetime import date
@@ -41,7 +41,7 @@ class depthProfileNC:
 		print 'depthProfileNC:\tERROR:\tinputfile name does not exists:', self.fni
 		return
 				
-	nci = ncdfView(self.fni,Quiet =True)
+	nci = Dataset(self.fni,'r')#Quiet =True)
 	
 	#check for location in the map.
 	# if the values are integers, it assumes them to be a grid location.

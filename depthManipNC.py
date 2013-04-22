@@ -18,7 +18,7 @@
 
 #timemean = True will reduce all elements with a time dimension to size 1 and take the mean.
 
-from ncdfView import ncdfView
+#from ncdfView import ncdfView
 try:	from netCDF4 import Dataset, default_fillvals
 except: from netCDF4 import Dataset, _default_fillvals
 from datetime import date
@@ -60,7 +60,7 @@ class depthManipNC:
 	for var,flag in zip(self.vars, self.depthFlags):self.varflag[var] = flag
 	
 	if self.debug: print 'depthManipNC:\tINFO:\topening dataset:\t', self.fni	
-	nci = ncdfView(self.fni,Quiet =True)
+	nci = Dataset(self.fni,'r')#Quiet =True)
 	#if self.depthFlags and 'zbnd' not in nci.variables.keys():
 	#	print 'depthManipNC:\tERROR:\tdepthFlags is ',self.depthFlags,'but inputfile name does contain \'zbnd\''
 	#	return
@@ -121,8 +121,8 @@ class depthManipNC:
 		nco.variables[var].units=units
 		if self.debug: print 'depthManipNC:\tInfo:\tAdding units:',var,units
 
-	if 'zbnd' in nci.variables.keys(): self.zbnd = nci('zbnd')[:]
-	if 'bathymetry' in nci.variables.keys(): self.bathy = nci('bathymetry')[:]	
+	if 'zbnd' in nci.variables.keys(): self.zbnd =nci.variables['zbnd'][:]
+	if 'bathymetry' in nci.variables.keys(): self.bathy =nci.variables['bathymetry'][:]	
 	
 	# Fill Values:
 	for var in save:
@@ -160,7 +160,7 @@ class depthManipNC:
 
   def bottomLayer(self, nci, var):
 	if self.debug: print 'depthManipNC:\tbottomLayer:\tbegin'
-  	Shape = nci(var)[:].shape
+  	Shape =nci.variables[var][:].shape
   	print var, Shape
 	bathy= -self.bathy +10. #(-5985m -> -3m)
 	bathy=bathy[None,None,:]

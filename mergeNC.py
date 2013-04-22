@@ -6,7 +6,7 @@
 # It creates a new netcdf that contains the variables that you gave it from all the files in the input file list in chronological.
 # In combination with pruneNC.py, this scrip can take the 12hourly file,
 
-from ncdfView import ncdfView
+#from ncdfView import ncdfView
 from netCDF4 import Dataset,num2date,date2num
 try:	from netCDF4 import default_fillvals
 except: from netCDF4 import _default_fillvals
@@ -32,7 +32,7 @@ class mergeNC:
 		print 'mergeNC:\tERROR:\tinputfile name does not exists:', self.fnsi
 		return
 	print 'mergeNC:\tINFO:\topening dataset:\t', self.fnsi[0]	
-	nci = ncdfView(self.fnsi[0],Quiet =True)
+	nci = Dataset(self.fnsi[0],'r')#Quiet =True)
 	
 	if self.timeAverage:
 		print 'mergeNC:\tERROR:\ttimeAverage is not yet debugged. '# are no use:', self.vars
@@ -96,16 +96,16 @@ class mergeNC:
 
 	for t,fni in enumerate(self.fnsi):
 		print 'mergeNC:\tINFO:\tOpening ', fni, ' ...', t   
-		nci = ncdfView(fni,Quiet =True)
+		nci = Dataset(fni,'r')#Quiet =True)
 		
 		#time
 		#if self.timeAverage: a[tvar].append(t+1)
 		#else: 
 
-		tval = num2date(nci(tvar)[:],nci.variables[tvar].units)		
+		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units)		
 		a[tvar].append ( date2num(tval,nco.variables[tvar].units))
 		print 'TIME:',t, tvar, tval
-		#       t = nci('time')[ms].mean()
+		#       t = nci.variables['time')[ms].mean()
 		#       t= num2date(t,nci.variables['time'].units)
 		#       a['time'].append(date2num(t,nco.variables['time'].units))
 		       		  
@@ -113,9 +113,9 @@ class mergeNC:
 		for var in a.keys():
 		  if var in time:continue
 		  #if self.timeAverage: 
-		  #  a[var].append(nci(var)[:].mean(0))
+		  #  a[var].append(nci.variables[var][:].mean(0))
 		  #else:
-		  arr = nci(var)[:]
+		  arr = nci.variables[var][:]
 		  if not len(a[var]): a[var]=arr[None,]
 		  else:    a[var] = append(a[var], arr[None,], axis=0) 
 		  print 'var:', t, var, 'len:',len(a[var]), arr.shape

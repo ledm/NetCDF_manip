@@ -5,7 +5,7 @@
 # It creates a new netcdf that contains only the variables that you gave it. 
 
 
-from ncdfView import ncdfView
+#from ncdfView import ncdfView
 try:	from netCDF4 import Dataset, default_fillvals
 except: from netCDF4 import Dataset, _default_fillvals
 from datetime import date
@@ -31,7 +31,7 @@ class pruneNC:
 		print 'pruneNC:\tERROR:\tinputfile name does not exists:', self.fni
 		return
 				
-	nci = ncdfView(self.fni,Quiet =True)
+	nci = Dataset(self.fni,'r')#Quiet =True)
 	
 	if self.depthInt: 
 		print 'FAIL: maybe you should look at the depthManip.py class instead. This one only removes variables from a netcdf.'

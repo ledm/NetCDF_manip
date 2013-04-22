@@ -28,7 +28,7 @@
 # As always, the debug flag just prints more when set to True
 # THIS CLASS DOES NOT CHANGE VARIABLE LENGTH, OR DIMENSION SIZE.
 
-from ncdfView import ncdfView
+#from ncdfView import ncdfView
 try:from netCDF4 import Dataset, default_fillvals
 except:from netCDF4 import Dataset, _default_fillvals
 from datetime import date
@@ -55,7 +55,7 @@ class changeNC:
 		return
 		
 	if self.debug: print 'changeNC:\tINFO:\tOpening dataset:\t', self.fni
-	nci = ncdfView(self.fni,Quiet =True)
+	nci = Dataset(self.fni,'r')#Quiet =True)
 		
 	# create dataset and netcdf attributes.
 	if self.debug: print 'changeNC:\tINFO:\tCreating a new dataset:\t', self.fno

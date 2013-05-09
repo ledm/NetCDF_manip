@@ -15,3 +15,5 @@ depthProfileNC.py: Creates a 1D profile netcdf at a specified location. Does not
 
 depthManipNC.py: This one is a bit crazy and does some unusual things with depth integration. Unfortunately, this one is the least stable, but it is the one I used to make surface/depth integration data for Jose.
 
+
+Don't forget to add the path to your PYTHONPATH in ~/.cshrc or ~/.bashrc

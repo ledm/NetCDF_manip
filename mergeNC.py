@@ -17,18 +17,16 @@ from numpy.ma import array
 from numpy import  append 
 
 class mergeNC:
-  def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False):
+  def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard'):
 	self.fnsi=filesIn
 	self.fno=filenameOut
 	self.vars=variables
+	self.cal = calendar
 	self.timeAverage = timeAverage
 	self.debug = debug
 	self.run()
 
   def run(self):	
-	if not self.vars:
-		print 'mergeNC:\tERROR:\tvariables to save are no use:', self.vars
-		return
 	if not exists(self.fnsi[0]):
 		print 'mergeNC:\tERROR:\tinputfile name does not exists:', self.fnsi
 		return
@@ -38,6 +36,13 @@ class mergeNC:
 	if self.timeAverage:
 		print 'mergeNC:\tERROR:\ttimeAverage is not yet debugged. '# are no use:', self.vars
 		return		
+	if not self.vars:
+		print 'mergeNC:\tINFO:\tvariables to save are empty, saving all.'
+		self.vars = nci.variables.keys()
+		
+	if self.cal:
+		print 'mergeNC:\tINFO:\tUsing non-standard calendar:', self.cal
+				
 	
 	#check that there are some overlap between input vars and nci:
 	for v in self.vars:
@@ -106,8 +111,8 @@ class mergeNC:
 		#if self.timeAverage: a[tvar].append(t+1)
 		#else: 
 
-		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units)		
-		a[tvar].append ( date2num(tval,nco.variables[tvar].units))
+		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
+		a[tvar].append ( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
 		if self.debug: print 'TIME:',t, tvar, tval
 		#       t = nci.variables['time')[ms].mean()
 		#       t= num2date(t,nci.variables['time'].units)

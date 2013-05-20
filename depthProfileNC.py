@@ -114,9 +114,17 @@ class depthProfileNC:
 	# Fill Values:
 	for var in save:
 		if self.debug: print 'depthProfileNC:\tINFO:\tCopying ', var, ' ...'
-		if len(nci.variables[var].shape) == 4:
+		shape  = nci.variables[var].shape
+		if len(shape) == 4:
 			arr = nci.variables[var][:,:,self.slice[0],self.slice[1]]
 			arr = arr[:,:,None,None] #add extra empty dimensions:
+		elif len(nci.variables[var].shape) == 3:
+			try:
+				arr = nci.variables[var][:,self.slice[0],self.slice[1]]
+				arr = arr[:,None,None] #add extra empty dimensions:
+			except: 
+				print 'depthProfileNC:\tERROR:\tCoping failed due to unusual shape', var,shape, self.slice
+				return
 		elif var in ['nav_lat','nav_lat', ]:
 			arr = nci.variables[var][self.slice[0],self.slice[1]]
 			arr = arr[None,None]

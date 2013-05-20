@@ -15,6 +15,7 @@ from getpass import getuser
 from os.path import exists
 from numpy.ma import array
 from numpy import  append 
+from glob import glob 
 
 class mergeNC:
   def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard'):
@@ -26,7 +27,10 @@ class mergeNC:
 	self.debug = debug
 	self.run()
 
-  def run(self):	
+  def run(self):
+	if type(self.fnsi) == type('abc'):
+		self.fnsi = glob(self.fnsi)
+		  
 	if not exists(self.fnsi[0]):
 		print 'mergeNC:\tERROR:\tinputfile name does not exists:', self.fnsi
 		return
@@ -39,7 +43,11 @@ class mergeNC:
 	if not self.vars:
 		print 'mergeNC:\tINFO:\tvariables to save are empty, saving all.'
 		self.vars = nci.variables.keys()
-		
+
+	if self.vars == 'all':
+		print 'mergeNC:\tINFO:\tvariables to save:  \'all\' requested. '
+		self.vars = nci.variables.keys()
+				
 	if self.cal:
 		print 'mergeNC:\tINFO:\tUsing non-standard calendar:', self.cal
 				

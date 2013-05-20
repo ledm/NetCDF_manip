@@ -120,8 +120,9 @@ class mergeNC:
 		#else: 
 
 		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
-		a[tvar].append ( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
-		if self.debug: print 'TIME:',t, tvar, tval
+		a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
+		
+		if self.debug: print 'TIME:',t, tvar, array(a[tvar]).shape
 		#       t = nci.variables['time')[ms].mean()
 		#       t= num2date(t,nci.variables['time'].units)
 		#       a['time'].append(date2num(t,nco.variables['time'].units))
@@ -133,9 +134,11 @@ class mergeNC:
 		  #  a[var].append(nci.variables[var][:].mean(0))
 		  #else:
 		  arr = nci.variables[var][:]
-		  if not len(a[var]): a[var]=arr[None,]
-		  else:    a[var] = append(a[var], arr[None,], axis=0) 
-		  if self.debug: print 'var:', t, var, 'len:',len(a[var]), arr.shape
+		  #if not len(a[var]): a[var]=arr[None,]
+		  #else:    a[var] = append(a[var], arr[None,], axis=0) 
+		  if not len(a[var]): a[var]=arr
+		  else:    a[var] = append(a[var], arr, axis=0) 		  
+		  if self.debug: print 'var:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
 
 		nci.close()
 		
@@ -143,7 +146,7 @@ class mergeNC:
 		#print 'mergeNC:\tINFO:\tsaving ', var, ' ...' ,a[var], array(a[var]) #, array(a[var]).mean(1).shape
 		#if self.timeAverage: nco.variables[var][:] = array(a[var]).mean(1) # this part may break, maybe need a reshape?
 		#else:
-		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...'#, a[var][0]
+		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape  #, a[var][0]
 		nco.variables[var][:] = array(a[var])
 		
 	# Close output netcdfs:

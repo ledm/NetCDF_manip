@@ -13,8 +13,8 @@ except: from netCDF4 import _default_fillvals
 from datetime import date
 from getpass import getuser
 from os.path import exists
-from numpy.ma import array
-from numpy import  append 
+from numpy.ma import array,masked_where
+from numpy import  append, zeros
 from glob import glob 
 
 class mergeNC:
@@ -113,29 +113,25 @@ class mergeNC:
 
 	for t,fni in enumerate(self.fnsi):
 		if self.debug: print 'mergeNC:\tINFO:\tOpening ', fni, ' ...', t   
-		nci = Dataset(fni,'r')#Quiet =True)
+		nci = Dataset(fni,'r')
 		
-		#time
-		#if self.timeAverage: a[tvar].append(t+1)
-		#else: 
+
 
 		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
 		a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
 		
-		if self.debug: print 'TIME:',t, tvar, array(a[tvar]).shape
-		#       t = nci.variables['time')[ms].mean()
-		#       t= num2date(t,nci.variables['time'].units)
-		#       a['time'].append(date2num(t,nco.variables['time'].units))
+		if self.debug: print 'mergeNC:\tINFO:\tTIME:',t, tvar, array(a[tvar]).shape
+
 		       		  
 		# not time:
 		for var in a.keys():
 		  if var in time:continue
-		  #if self.timeAverage: 
-		  #  a[var].append(nci.variables[var][:].mean(0))
-		  #else:
-		  arr = nci.variables[var][:]
-		  #if not len(a[var]): a[var]=arr[None,]
-		  #else:    a[var] = append(a[var], arr[None,], axis=0) 
+		  if var in nci.variables.keys(): arr = nci.variables[var][:]
+		  else:
+	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var
+	  	    arr = zeros(nco.variables[var][0,:].shape)
+	  	    arr = masked_where(arr==0.,arr)
+		  
 		  if not len(a[var]): a[var]=arr
 		  else:    a[var] = append(a[var], arr, axis=0) 		  
 		  if self.debug: print 'var:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
@@ -143,7 +139,6 @@ class mergeNC:
 		nci.close()
 		
 	for var in a.keys():
-		#print 'mergeNC:\tINFO:\tsaving ', var, ' ...' ,a[var], array(a[var]) #, array(a[var]).mean(1).shape
 		#if self.timeAverage: nco.variables[var][:] = array(a[var]).mean(1) # this part may break, maybe need a reshape?
 		#else:
 		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape  #, a[var][0]

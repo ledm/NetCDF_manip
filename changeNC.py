@@ -31,6 +31,7 @@
 #from ncdfView import ncdfView
 try:from netCDF4 import Dataset, default_fillvals
 except:from netCDF4 import Dataset, _default_fillvals
+
 from datetime import date
 from getpass import getuser
 from os.path import exists
@@ -38,11 +39,13 @@ from os.path import exists
 
 
 class changeNC:
-  def __init__(self, filenameIn, filenameOut, av, debug=True):
+  def __init__(self, filenameIn, filenameOut, av, debug=True,datasetFormat='NETCDF4'):
 	self.fni=filenameIn
 	self.fno=filenameOut
 	self.av=av		
 	self.debug=debug
+	self.unlmitedTime = False
+	self.datasetFormat = datasetFormat
 	self.run()
 
   def run(self):
@@ -59,7 +62,7 @@ class changeNC:
 		
 	# create dataset and netcdf attributes.
 	if self.debug: print 'changeNC:\tINFO:\tCreating a new dataset:\t', self.fno
-	nco = Dataset(self.fno,'w')
+	nco = Dataset(self.fno,'w',format=self.datasetFormat)
 	attributes =  nci.ncattrs()
 	attributes.extend(list(self.av['att']))
 	for att in list(set(attributes)):
@@ -76,7 +79,8 @@ class changeNC:
 	  newDim = dim
 	  dimSize=len(nci.dimensions[dim])
 	  if self.av['dim'][dim]: newDim=self.av['dim'][dim]
-	  if dim.lower() in ['time','t']: dimSize = None
+	  if not self.unlmitedTime:
+	  	if dim.lower() in ['time','t']: dimSize = None
 	  nco.createDimension(newDim, dimSize)
 	  if self.debug: print 'changeNC:\tINFO:\tadding dimension: ',dim,'-->', newDim, '\t(',dimSize,')'
 

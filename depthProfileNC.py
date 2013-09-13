@@ -67,6 +67,7 @@ class depthProfileNC:
 	for v in self.vars:
 		if v in nci.variables.keys():continue
 		print 'depthProfileNC:\tERROR:\tvariable,' ,v,', not found in ',self.fni
+		nci.close()
 		return
 	
 	
@@ -83,14 +84,18 @@ class depthProfileNC:
 	
 	# list of variables to save, assuming some conventions
 	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'nav_lat','nav_lat', 'time_counter', 'deptht',]
+	timeNames = ['time', 'time_counter', 't']
+	latNames = ['lat', 'latbnd','nav_lat','x']
+	lonNames = ['lon', 'lonbnd','nav_lon','y']
 	save =   list(set(nci.variables.keys()).intersection(set(alwaysInclude) ) ) 
 	save = list(set(sorted(save + self.vars)))
 	
 	# create dimensions:
 	for d in nci.dimensions.keys():
-	  if d in ['time',]: nco.createDimension(d, None)
-	  elif d in ['lat','lon', 'x' ,'y',]: nco.createDimension(d, 1)
-	  else:		     nco.createDimension(d, len(nci.dimensions[d]))
+	  if d in timeNames:  nco.createDimension(d, None)
+	  elif d in latNames: nco.createDimension(d, 1)
+	  elif d in lonNames: nco.createDimension(d, 1)	  
+	  else:		      nco.createDimension(d, len(nci.dimensions[d]))
 
 	# create Variables:
 	for var in save:  nco.createVariable(var, nci.variables[var].dtype, nci.variables[var].dimensions,zlib=True,complevel=5)
@@ -99,7 +104,7 @@ class depthProfileNC:
 	for var in save: 
 		try:  	long_name=nci.variables[var].long_name
 		except:	
-		  print 'depthProfileNC:\tWarning:\tNo long_name for ', var
+		  if self.debug: print 'depthProfileNC:\tWarning:\tNo long_name for ', var
 		  long_name = var
 		  
 		#if self.timemean: long_name.replace('Daily', 'Monthly')	
@@ -125,7 +130,7 @@ class depthProfileNC:
 			except: 
 				print 'depthProfileNC:\tERROR:\tCoping failed due to unusual shape', var,shape, self.slice
 				return
-		elif var in ['nav_lat','nav_lat', ]:
+		elif var in latNames or var in lonNames:
 			arr = nci.variables[var][self.slice[0],self.slice[1]]
 			arr = arr[None,None]
 		else:

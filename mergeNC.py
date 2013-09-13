@@ -13,17 +13,18 @@ except: from netCDF4 import _default_fillvals
 from datetime import date
 from getpass import getuser
 from os.path import exists
-from numpy.ma import array,masked_where
-from numpy import  append, zeros
+from numpy.ma import array,masked_all
+from numpy import  append
 from glob import glob 
 
 class mergeNC:
-  def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard'):
+  def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard',fullCheck=False):
 	self.fnsi=filesIn
 	self.fno=filenameOut
 	self.vars=variables
 	self.cal = calendar
 	self.timeAverage = timeAverage
+	self.fullCheck = fullCheck
 	self.debug = debug
 	self.run()
 
@@ -41,21 +42,21 @@ class mergeNC:
 		print 'mergeNC:\tERROR:\ttimeAverage is not yet debugged. '# are no use:', self.vars
 		return		
 	if not self.vars:
-		print 'mergeNC:\tINFO:\tvariables to save are empty, saving all.'
+		if self.debug: print 'mergeNC:\tINFO:\tvariables to save are empty, saving all.'
 		self.vars = nci.variables.keys()
 
 	if self.vars == 'all':
-		print 'mergeNC:\tINFO:\tvariables to save:  \'all\' requested. '
+		if self.debug: print 'mergeNC:\tINFO:\tvariables to save:  \'all\' requested. '
 		self.vars = nci.variables.keys()
 				
 	if self.cal:
-		print 'mergeNC:\tINFO:\tUsing non-standard calendar:', self.cal
+		if self.debug: print 'mergeNC:\tINFO:\tUsing non-standard calendar:', self.cal
 				
 	
 	#check that there are some overlap between input vars and nci:
 	for v in self.vars:
 		if v in nci.variables.keys():continue
-		print 'mergeNC:\tERROR:\tvariable,' ,v,', not found in ',self.fni
+		print 'mergeNC:\tERROR:\tvariable,' ,v,', not found in ',fni
 		return
 		
 	#create dataset and header.
@@ -76,7 +77,37 @@ class mergeNC:
 	if len(time) ==1: tvar=time[0]
 	else: tvar = 'time'
 	
+	missing = {}
+	if self.fullCheck:
+	    if self.debug: print 'mergeNC:\tINFO:\tPerforming full check for missing entries'
+	    for t,fni in enumerate(self.fnsi):
+		#if self.debug: print 'mergeNC:\tINFO:\tOpening ', fni, ' ...', t   
+		nci = Dataset(fni,'r')
+		keys =nci.variables.keys()
+		for s in save:
+			if s in alwaysInclude:continue
+			if s not in keys:
+				print 'mergeNC:\tWARNING:\tFull check: ',s,' is missing from ', fni
+				try: missing[s].append(fni)
+				except:missing[s] = [fni,]
+	    	nci.close()
+
+ 	    for s in missing.keys():
+	        #remove key: 	    
+	    	#print 'mergeNC:\tWARNING:\tFull check:\tremoving',s,' from ',save
+	    	#save.remove(s)
+	        
+	        #remove missing files:
+	    	for fn in missing[s]: 
+		    	print 'mergeNC:\tWARNING:\tFull check:\tremoving',fni,' from files'	    	
+	    		try:self.fnsi.remove(fn)
+	    		except: print 'mergeNC:\tWARNING:\tFull check:\t',fni,' already removed from files'
+
+
+  
+	
 	# create dimensions:
+	nci = Dataset(self.fnsi[0],'r')#Quiet =True)	
 	for d in nci.dimensions.keys():
 	  if d in time: nco.createDimension(d, None)
 	  else:		nco.createDimension(d, len(nci.dimensions[d]))
@@ -115,8 +146,7 @@ class mergeNC:
 		if self.debug: print 'mergeNC:\tINFO:\tOpening ', fni, ' ...', t   
 		nci = Dataset(fni,'r')
 		
-
-
+		#times:
 		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
 		a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
 		
@@ -128,9 +158,9 @@ class mergeNC:
 		  if var in time:continue
 		  if var in nci.variables.keys(): arr = nci.variables[var][:]
 		  else:
-	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var
-	  	    arr = zeros(nco.variables[var][0,:].shape)
-	  	    arr = masked_where(arr==0.,arr)
+	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
+	  	    #print nco.variables[var][0,:].shape
+	  	    arr = masked_all(nco.variables[var][0,:].shape)
 		  
 		  if not len(a[var]): a[var]=arr
 		  else:    a[var] = append(a[var], arr, axis=0) 		  

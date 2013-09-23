@@ -9,12 +9,12 @@
 #from ncdfView import ncdfView
 from netCDF4 import Dataset,num2date,date2num
 try:	from netCDF4 import default_fillvals
-except: from netCDF4 import _default_fillvals
+except: from netCDF4 import _default_fillvals as default_fillvals
 from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array,masked_all
-from numpy import  append
+from numpy import  append,mean
 from glob import glob 
 
 class mergeNC:
@@ -33,14 +33,14 @@ class mergeNC:
 		self.fnsi = glob(self.fnsi)
 		  
 	if not exists(self.fnsi[0]):
-		print 'mergeNC:\tERROR:\tinputfile name does not exists:', self.fnsi
+		print 'mergeNC:\tERROR:\tinputfile name does not exists:', self.fnsi[0]
 		return
 	if self.debug: print 'mergeNC:\tINFO:\topening dataset:\t', self.fnsi[0]	
 	nci = Dataset(self.fnsi[0],'r')#Quiet =True)
 	
 	if self.timeAverage:
-		print 'mergeNC:\tERROR:\ttimeAverage is not yet debugged. '# are no use:', self.vars
-		return		
+		print 'mergeNC:\tWARNING:\ttimeAverage is not yet debugged. '# are no use:', self.vars
+		#return		
 	if not self.vars:
 		if self.debug: print 'mergeNC:\tINFO:\tvariables to save are empty, saving all.'
 		self.vars = nci.variables.keys()
@@ -49,14 +49,14 @@ class mergeNC:
 		if self.debug: print 'mergeNC:\tINFO:\tvariables to save:  \'all\' requested. '
 		self.vars = nci.variables.keys()
 				
-	if self.cal:
+	if self.cal != 'standard':
 		if self.debug: print 'mergeNC:\tINFO:\tUsing non-standard calendar:', self.cal
 				
 	
 	#check that there are some overlap between input vars and nci:
 	for v in self.vars:
 		if v in nci.variables.keys():continue
-		print 'mergeNC:\tERROR:\tvariable,' ,v,', not found in ',fni
+		print 'mergeNC:\tERROR:\tvariable,' ,v,', not found in ',self.fnsi[0]
 		return
 		
 	#create dataset and header.
@@ -109,8 +109,10 @@ class mergeNC:
 	# create dimensions:
 	nci = Dataset(self.fnsi[0],'r')#Quiet =True)	
 	for d in nci.dimensions.keys():
-	  if d in time: nco.createDimension(d, None)
-	  else:		nco.createDimension(d, len(nci.dimensions[d]))
+	  if nci.dimensions[d].isunlimited(): dimSize = None
+	  else:	  dimSize=len(nci.dimensions[d])
+	  nco.createDimension(d, dimSize)	
+	  
 
 	# create Variables:
 	for var in save:  nco.createVariable(var, nci.variables[var].dtype, nci.variables[var].dimensions,zlib=True,complevel=5)
@@ -152,25 +154,31 @@ class mergeNC:
 		
 		if self.debug: print 'mergeNC:\tINFO:\tTIME:',t, tvar, array(a[tvar]).shape
 
-		       		  
 		# not time:
 		for var in a.keys():
 		  if var in time:continue
 		  if var in nci.variables.keys(): arr = nci.variables[var][:]
 		  else:
 	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
-	  	    #print nco.variables[var][0,:].shape
+
 	  	    arr = masked_all(nco.variables[var][0,:].shape)
 		  
 		  if not len(a[var]): a[var]=arr
 		  else:    a[var] = append(a[var], arr, axis=0) 		  
-		  if self.debug: print 'var:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
+		  if self.debug: print 'mergeNC:\tINFO\tvar:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
 
 		nci.close()
-		
-	for var in a.keys():
-		#if self.timeAverage: nco.variables[var][:] = array(a[var]).mean(1) # this part may break, maybe need a reshape?
-		#else:
+	
+	if self.timeAverage: 
+	    for var in a.keys():
+		if self.debug: print "mergeNC:\tINFO\tTime Average:", var 
+		if var == tvar:
+			nco.variables[tvar][:] = [mean(a[var]),]	
+		else:
+			nco.variables[var][:] = array(a[var]).mean(0)[None,:] 
+			
+	else: # No time averaging.
+	    for var in a.keys():
 		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape  #, a[var][0]
 		nco.variables[var][:] = array(a[var])
 		

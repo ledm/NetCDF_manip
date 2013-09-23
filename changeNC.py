@@ -44,7 +44,6 @@ class changeNC:
 	self.fno=filenameOut
 	self.av=av		
 	self.debug=debug
-	self.unlmitedTime = False
 	self.datasetFormat = datasetFormat
 	self.run()
 
@@ -79,8 +78,7 @@ class changeNC:
 	  newDim = dim
 	  dimSize=len(nci.dimensions[dim])
 	  if self.av['dim'][dim]: newDim=self.av['dim'][dim]
-	  if not self.unlmitedTime:
-	  	if dim.lower() in ['time','t']: dimSize = None
+	  if nci.dimensions[dim].isunlimited(): dimSize = None
 	  nco.createDimension(newDim, dimSize)
 	  if self.debug: print 'changeNC:\tINFO:\tadding dimension: ',dim,'-->', newDim, '\t(',dimSize,')'
 
@@ -133,7 +131,7 @@ class changeNC:
 		if self.av[var]['name']:newname = self.av[var]['name'] 
 		if newname.lower() in ['false', 'none','remove', 'delete', 0]:continue		
 		if self.av[var]['convert']:func = self.av[var]['convert'] 		
-		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname
+		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, nci.variables[var][:].shape
 		nco.variables[newname][:] =func(nci.variables[var][:])
 		
 	# Close netcdfs:

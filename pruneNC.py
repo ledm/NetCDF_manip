@@ -1,9 +1,3 @@
-# this file takes a netcdf in, a netcdf out and a list of variables to save.
-# it automatically saves the dimensions, and the header.
-
-# This class takes an input netcdf filename, an output netcdf filename and a list of variables to keep. Usually ['var', 'lat','lon',time','depth'].
-# It creates a new netcdf that contains only the variables that you gave it. 
-
 
 #from ncdfView import ncdfView
 try:	from netCDF4 import Dataset, default_fillvals
@@ -12,6 +6,14 @@ from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array as marray
+"""
+	this file takes a netcdf in, a netcdf out and a list of variables to save.
+	it automatically saves the dimensions, and the header.
+
+	This class takes an input netcdf filename, an output netcdf filename and a list of variables to keep. Usually ['var', 'lat','lon',time','depth'].
+	It creates a new netcdf that contains only the variables that you gave it. 
+"""
+
 
 class pruneNC:
   def __init__(self, filenameIn, filenameOut, variables, depthInt = False, timemean=False, debug=False):

@@ -77,8 +77,9 @@ class changeNC:
 	for dim in dimensions:
 	  newDim = dim
 	  dimSize=len(nci.dimensions[dim])
-	  if self.av['dim'][dim]: newDim=self.av['dim'][dim]
-	  if nci.dimensions[dim].isunlimited(): dimSize = None
+	  if nci.dimensions[dim].isunlimited(): dimSize = None	  
+	  if self.av['dim'][dim]['name']: newDim=self.av['dim'][dim]['name']
+	  if self.av['dim'][dim]['newSize']: dimSize = self.av['dim'][dim]['newSize']	  
 	  nco.createDimension(newDim, dimSize)
 	  if self.debug: print 'changeNC:\tINFO:\tadding dimension: ',dim,'-->', newDim, '\t(',dimSize,')'
 
@@ -94,8 +95,9 @@ class changeNC:
 			if self.debug: print 'changeNC:\tINFO:\tremoving variable: ',var
 			continue
 		dimensions = list(nci.variables[var].dimensions)
-		for d,dim in enumerate(dimensions):
-			if self.av['dim'][dim]: dimensions[d] = self.av['dim'][dim]
+		# for d,dim in enumerate(dimensions):
+		#	#if self.av['dim'][dim]: dimensions[d] = self.av['dim'][dim]
+		if self.av[var]['newDims']: dimensions = self.av[var]['newDims']
       		nco.createVariable(newname, nci.variables[var].dtype, tuple(dimensions),zlib=True,complevel=5)
 	  	if self.debug: print 'changeNC:\tINFO:\tadding variable: ',var,'-->', newname, '\t(',dimensions,')'
 	  
@@ -131,9 +133,9 @@ class changeNC:
 		if self.av[var]['name']:newname = self.av[var]['name'] 
 		if newname.lower() in ['false', 'none','remove', 'delete', 0]:continue		
 		if self.av[var]['convert']:func = self.av[var]['convert'] 		
-		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, nci.variables[var][:].shape
+		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, nci.variables[var][:].shape,
 		nco.variables[newname][:] =func(nci.variables[var][:])
-		
+		if self.debug: print '->', nco.variables[newname][:].shape
 	# Close netcdfs:
 	nco.close()
 	nci.close()

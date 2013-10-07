@@ -109,13 +109,20 @@ class mergeNC:
 	# create dimensions:
 	nci = Dataset(self.fnsi[0],'r')#Quiet =True)	
 	for d in nci.dimensions.keys():
-	  if nci.dimensions[d].isunlimited(): dimSize = None
+	  if nci.dimensions[d].isunlimited() or d.lower() in ['time','time_counter',time]: dimSize = None
 	  else:	  dimSize=len(nci.dimensions[d])
 	  nco.createDimension(d, dimSize)	
-	  
+	  if self.debug: print 'mergeNC:\tINFO:\tCreating Dimension:', d,dimSize
 
 	# create Variables:
-	for var in save:  nco.createVariable(var, nci.variables[var].dtype, nci.variables[var].dimensions,zlib=True,complevel=5)
+	for var in save:
+		dt = nci.variables[var].dtype
+		
+		if self.debug: 
+				print 'mergeNC:\tINFO:\tCreating Variable:',var,nci.variables[var].dtype,nci.variables[var].dimensions,
+				print "zlib=True,complevel=5,fill_value=",default_fillvals['f8']
+
+	  	nco.createVariable(var, nci.variables[var].dtype, nci.variables[var].dimensions,zlib=True,complevel=5,fill_value=default_fillvals['f8'])
 
 	# Long Names:
 	for var in save: 
@@ -135,7 +142,8 @@ class mergeNC:
 	for var in alwaysInclude:
 		if var in time:continue
 		if self.debug: print 'mergeNC:\tINFO:\tCopying ', var, ' ...', nci.variables[var][:].shape
-		nco.variables[var][:] =nci.variables[var][:]
+		try:nco.variables[var][:] = nci.variables[var][:].data
+		except:nco.variables[var][:] = nci.variables[var][:]
 	nci.close()
 	
 	a={}

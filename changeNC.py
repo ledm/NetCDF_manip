@@ -53,7 +53,7 @@ class changeNC:
 		print 'changeNC:\tERROR:\tchanges to make are no use:', self.av
 		return
 	if not exists(self.fni):
-		print 'changeNC:\tERROR:\tinputfile name does not exists:', self.fni
+		print 'changeNC:\tERROR:\tinputfile name does not exist:', self.fni
 		return
 		
 	if self.debug: print 'changeNC:\tINFO:\tOpening dataset:\t', self.fni

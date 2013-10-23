@@ -70,7 +70,7 @@ class mergeNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'longitude', 't','nav_lat','nav_lon', 'time_counter', 'deptht',]
+	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'longitude', 't','nav_lat','nav_lon', 'time_counter', 'deptht','depth','z']
 	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
 	time = intersection(['time', 't','time_counter',], alwaysInclude)
@@ -157,8 +157,11 @@ class mergeNC:
 		nci = Dataset(fni,'r')
 		
 		#times:
-		tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
-		a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
+		try:
+		  tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
+		  a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
+		except:
+		  a[tvar].extend(nci.variables[tvar][:])
 		
 		if self.debug: print 'mergeNC:\tINFO:\tTIME:',t, tvar, array(a[tvar]).shape
 

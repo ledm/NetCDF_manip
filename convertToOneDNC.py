@@ -11,7 +11,7 @@ from operator import itemgetter
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
 # list of variables to save, assuming some conventions
-alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','time_counter','deptht','depth', ] 
+alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','time_counter','deptht','depth', 'latitude', 'longitude',] 
 		#'crs',]'lat_bnds','lon_bnds',
 
 
@@ -195,7 +195,12 @@ class convertToOneDNC:
 			
 			for c in sorted_Coords:
 			#for c in sorted(CoordsToKeep.keys()):	
-				outarr.append(arr[(c[0][2:])])				
+				outarr.append(arr[(c[0][2:])])	
+		elif arr.ndim ==3:
+			if var.lower() in ['fAirSeaC',]:	d = (0,2,3)
+			print var, 'lendth : 3', d
+			for c in sorted_Coords:
+				outarr.append(arr[(c[0][0],c[0][2],c[0][3])])
 		else:
 		    #for c in sorted(CoordsToKeep.keys()):
 		    	for c in sorted_Coords:

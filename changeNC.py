@@ -1,32 +1,4 @@
-# this file takes a netcdf filename in, a netcdf filename out and an AutoVivification dictionary for changes.
-# it copies the netcdf, but makes the changes to metadata requrested in a dictionairy.
-#
-# For a given variable, units, long_name and variable name can be changed here.
-# a lambda function can be assigned to a variable for simple conversions.
-#
-#	To add or change a netcdf attribute:
-#	av = AutoVivification()
-#	av['att']['Description'] = 'New description'
-#
-#	to remove an attribute:
-#	av['att']['Description'] = ''
-#
-#	to change a dimension name:
-#	av['dim']['oldDimensionName']= 'newDimensionName'
-#
-#	to change a variable, i.e. change old var,'t', to new var:'time'.
-#	av['t']['name']='time'
-#	av['t']['units']='day'
-#	
-#	to remove a variable from the file, set it's name to "False", "Remove", or "Delete"
-#	av['t']['name']='False'
-#
-#	The values in the array can be changed with a lambda function: 
-#	av['t']['convert']=lambda t:t/2. # divide time by two.
-#
-#
-# As always, the debug flag just prints more when set to True
-# THIS CLASS DOES NOT CHANGE VARIABLE LENGTH, OR DIMENSION SIZE.
+
 
 #from ncdfView import ncdfView
 try:from netCDF4 import Dataset, default_fillvals
@@ -39,6 +11,51 @@ from os.path import exists
 
 
 class changeNC:
+  """
+  This class takes a netcdf filename in, a netcdf filename out and an AutoVivification dictionary for changes.
+  it copies the netcdf, but makes the changes to metadata requrested in a dictionairy.
+
+  For a given variable, units, long_name and variable name can be changed here.
+  a lambda function can be assigned to a variable for simple conversions.
+
+  Further details:
+	To add or change a netcdf attribute:
+	av = AutoVivification()
+	av['att']['Description'] = 'New description'
+
+	to remove an attribute:
+	av['att']['Description'] = ''
+
+	to change a dimension name:
+	av['dim']['oldDimensionName']= 'newDimensionName'
+
+	to change a dimension's size:
+	av['dim']['oldDimensionName']['newSize']= 15
+
+	to change a variable, i.e. change old var,'t', to new var:'time'.
+	av['oldVarName']['name']	='newVarName'
+	av['oldVarName']['units']	='newVarUnits'
+	av['oldVarName']['long_name']	='newVarLongName'
+	
+	to remove a variable from the file, set it's name to "False", "Remove", or "Delete"
+	av['t']['name']='False'
+
+	A new data array can be set with: 
+	av['oldVarName']['newData'] = NewDataArray
+	
+	Alternatively, the values in the array can be manipulated with a lambda function: 
+	av['t']['convert']=lambda t:t/2. # divide time by two.
+
+	or a predefined function:
+	def addOne(arr): return arr+1
+	av['t']['convert'] =addOne
+
+	The debug flag prints more when set to True.
+	
+	The datasetFormat flag allows the netcdf to be written in a different format,
+	following the conventions of netCDF4.Dataset.	
+  """
+
   def __init__(self, filenameIn, filenameOut, av, debug=True,datasetFormat='NETCDF4'):
 	self.fni=filenameIn
 	self.fno=filenameOut
@@ -133,9 +150,11 @@ class changeNC:
 		func = lambda  x: x
 		if self.av[var]['name']:newname = self.av[var]['name'] 
 		if newname.lower() in ['false', 'none','remove', 'delete', 0]:continue		
-		if self.av[var]['convert']:func = self.av[var]['convert'] 		
-		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, nci.variables[var][:].shape,
-		nco.variables[newname][:] =func(nci.variables[var][:])
+		if self.av[var]['convert']:func = self.av[var]['convert']
+		if len(self.av[var]['newData']): arr=self.av[var]['newData']
+		else: 	arr = nci.variables[var][:]		
+		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, arr.shape,
+		nco.variables[newname][:] =func(arr)
 		if self.debug: print '->', nco.variables[newname][:].shape
 	# Close netcdfs:
 	nco.close()

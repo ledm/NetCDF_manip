@@ -130,7 +130,7 @@ class depthProfileNC:
 			except: 
 				print 'depthProfileNC:\tERROR:\tCoping failed due to unusual shape', var,shape, self.slice
 				return
-		elif var in latNames or var in lonNames:
+		elif  len(nci.variables[var].shape) ==2: # or var in latNames or var in lonNames:
 			arr = nci.variables[var][self.slice[0],self.slice[1]]
 			arr = arr[None,None]
 		else:
@@ -144,7 +144,13 @@ class depthProfileNC:
 		if self.debug: 
 			print 'depthProfileNC:\tInfo:\tSaving var:',var, arr.shape, 
 			print '[nco is expecting:',nco.variables[var][:].shape,']\tdims:', nci.variables[var].dimensions
-		
+			# this is not a bug if its a time.
+			#if nco.variables[var][:].shape != arr.shape:
+		#	print 'depthProfileNC:\tERROR: \toutput array does not match requested array shape'
+		#	print 'depthProfileNC:\tERROR:\tvar:',var, arr.shape, 
+		#	print 'but output netcdf is expecting:',nco.variables[var][:].shape,'\tdims:', nci.variables[var].dimensions	, nco.variables[var].dimensions
+		#	#assert False
+			
 		nco.variables[var][:] =arr
 
 	# Close netcdfs:

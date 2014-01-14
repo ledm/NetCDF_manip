@@ -63,17 +63,20 @@ class mergeNC:
 	if self.debug: print 'mergeNC:\tINFO:\tCreating a new dataset:\t', self.fno
 	nco = Dataset(self.fno,'w')
 	for a in nci.ncattrs():
-		if self.debug: print 'mergeNC:\tINFO:\tcopying attribute: \t\"'+a+'\":\t', nci.getncattr(a)
-		nco.setncattr(a,nci.getncattr(a))	
+		try:
+		    if self.debug: print 'mergeNC:\tINFO:\tcopying attribute: \t\"'+str(a)+'\":\t', str(nci.getncattr(a))
+		    nco.setncattr(a,nci.getncattr(a))
+		except:
+		    if self.debug: print 'changeNC:\twarning:\tThat attribute probably isn\'t using ASCII characters!'			
 	appendToDesc= 'Reprocessed on '+todaystr()+' by '+getuser()+' using mergeNC.py'
 	try: nco.Notes = nci.Notes + '\n\t\t'+appendToDesc
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'longitude', 't','nav_lat','nav_lon', 'time_counter', 'deptht','depth','z']
+	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'longitude', 't','nav_lat','nav_lon', 'time_counter', 'deptht','depth','depthu','depthv','depthw','z','month',]
 	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
-	time = intersection(['time', 't','time_counter',], alwaysInclude)
+	time = intersection(['time', 't','time_counter','month',], alwaysInclude)
 	if len(time) ==1: tvar=time[0]
 	else: tvar = 'time'
 	
@@ -190,7 +193,7 @@ class mergeNC:
 			
 	else: # No time averaging.
 	    for var in a.keys():
-		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape  #, a[var][0]
+		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape, nco.variables[var].dimensions #, a[var][0]
 		nco.variables[var][:] = array(a[var])
 		
 	# Close output netcdfs:

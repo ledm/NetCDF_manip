@@ -11,7 +11,7 @@ from operator import itemgetter
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
 # list of variables to save, assuming some conventions
-alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','time_counter','deptht','depth', 'latitude', 'longitude',] 
+alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','time_counter','deptht','depth', 'latitude', 'longitude','month',] 
 		#'crs',]'lat_bnds','lon_bnds',
 
 
@@ -70,6 +70,7 @@ class convertToOneDNC:
   def run(self):
 	if not exists(self.fni):
 		print 'convertToOneDNC:\tERROR:\tinputfile name does not exists:', self.fni
+		assert False
 		return
 		  
 	nci = Dataset(self.fni,'r')
@@ -180,7 +181,7 @@ class convertToOneDNC:
 		arr = nci.variables[var][:]
 		outarr = []
 		if arr.ndim ==1:
-			if var.lower() in ['time','time_counter','t']:	d = 0
+			if var.lower() in ['time','time_counter','t','month']:	d = 0
 			if var.lower() in ['depth','deptht',]:		d = 1
 			if var.lower() in ['latbnd','lat','latitude']:	d = 2			
 			if var.lower() in ['lonbnd','lon','longitude']:d = 3
@@ -191,7 +192,8 @@ class convertToOneDNC:
 			except: var, "not found"
 		elif arr.ndim ==2:
 			if var.lower() in ['nav_lat','nav_lon']:	d = (2,3)
-			print var, 'lendth : 2', d
+			if var.lower() in ['deptht','latitude','longitude']:			d = (0,1)
+			print var, 'convertToOneDNC:\tINFO:\tndim: 2',var, d
 			
 			for c in sorted_Coords:
 			#for c in sorted(CoordsToKeep.keys()):	

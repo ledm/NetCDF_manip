@@ -49,10 +49,18 @@ def getCoordsToKeep(nc,variables,newMask='',debug = False):
 				coords = tuple([nz[j][i] for j in xrange(nzdims)])
 				#if coords not in CoordsToKeep.keys():	
 				#	print "NEWS OBSERVATION LOCATION:",i,coords
-				CoordsToKeep[coords] = i							
+				try: 
+				  if i in CoordsToKeep[coords]:pass
+				except:
+				  try:	CoordsToKeep[coords].append(i)
+				  except: CoordsToKeep[coords] = [i,]
 			else:
 				coords = tuple([nz[j][i] for j in xrange(nzdims)])
-				CoordsToKeep[coords] = i
+				try: 
+				  if i in CoordsToKeep[coords]:pass
+				except:
+				  try:	CoordsToKeep[coords].append(i)
+				  except: CoordsToKeep[coords] = [i,]
 		if debug: print "getCoordsToKeep:\t",var,"\tndims:", nzdims, len(nz[0]),"\tNumber of Coords:", len(CoordsToKeep.keys())
 	return CoordsToKeep,variables
 			
@@ -155,12 +163,16 @@ class convertToOneDNC:
 		except: print 'convertToOneDNC:\tWarning:\tNo units for ', var	
 		
 	# Fill Values:
-	sorted_Coords = sorted(CoordsToKeep.iteritems(), key=itemgetter(1))
+	def itemsgetter(a):
+    		return a[1][0]
 
+	sorted_Coords = sorted(CoordsToKeep.iteritems(), key=itemsgetter)
+	print "sorted_Coords:",sorted_Coords[0],sorted_Coords[-1]
 	data={}
 	if self.debug: print 'convertToOneDNC:\tINFO:\tCopying index  ...' , len(sorted_Coords)	
 #	nco.variables['index'][:] = [ int(a[1]) for a in sorted_Coords]	
-	nco.variables['index'][:] = array([ a[1] for a in sorted_Coords])
+
+	nco.variables['index'][:] = array([ a[1][0] for a in sorted_Coords])
 	nco.sync()	
 	if self.debug: print 'convertToOneDNC:\tINFO:\tCopying index t ...' 	
 	nco.variables['index_t'][:] = array([a[0][0] for a in sorted_Coords])
@@ -199,14 +211,20 @@ class convertToOneDNC:
 			#for c in sorted(CoordsToKeep.keys()):	
 				outarr.append(arr[(c[0][2:])])	
 		elif arr.ndim ==3:
-			if var.lower() in ['fAirSeaC',]:	d = (0,2,3)
+			#if var.lower() in ['fAirSeaC',]:
+			d = (0,2,3)
 			print var, 'lendth : 3', d
 			for c in sorted_Coords:
 				outarr.append(arr[(c[0][0],c[0][2],c[0][3])])
-		else:
+		elif arr.ndim ==4:
 		    #for c in sorted(CoordsToKeep.keys()):
 		    	for c in sorted_Coords:
-				outarr.append(arr[c[0]])
+		    		#print c, c[0], arr.shape
+		    		#print arr[c[0]]
+				outarr.append(arr[ (c[0][0],c[0][1],c[0][2],c[0][3]) ])
+		else:
+			print "How many dimensions?", arr.ndim
+			assert False
 		outarr= marray(outarr)
 		if self.debug: print 'convertToOneDNC:\tINFO:\tSaving var:',var, arr.shape, '->', outarr.shape , 'coords:',len(sorted_Coords)
 		nco.variables[var][:] =outarr

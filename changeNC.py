@@ -36,12 +36,14 @@ class changeNC:
 	av['oldVarName']['name']	='newVarName'
 	av['oldVarName']['units']	='newVarUnits'
 	av['oldVarName']['long_name']	='newVarLongName'
-	
+	av['oldVarName']['newDims']	=('x','y',z') # these need to exist aready 
+		
 	to remove a variable from the file, set it's name to "False", "Remove", or "Delete"
 	av['t']['name']='False'
 
 	A new data array can be set with: 
 	av['oldVarName']['newData'] = NewDataArray
+
 	
 	Alternatively, the values in the array can be manipulated with a lambda function: 
 	av['t']['convert']=lambda t:t/2. # divide time by two.

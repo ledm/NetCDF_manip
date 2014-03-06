@@ -176,9 +176,13 @@ class mergeNC:
 	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
 
 	  	    arr = masked_all(nco.variables[var][0,:].shape)
-		  
-		  if not len(a[var]): a[var]=arr
-		  else:    a[var] = append(a[var], arr, axis=0) 		  
+		  if not self.timeAverage:
+		  	if not len(a[var]): a[var]=arr
+			else:    a[var] = append(a[var], arr, axis=0)
+		  else:
+		  	if not len(a[var]): a[var]=arr
+			else:    a[var] += arr
+						
 		  if self.debug: print 'mergeNC:\tINFO\tvar:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
 
 		nci.close()
@@ -189,7 +193,7 @@ class mergeNC:
 		if var == tvar:
 			nco.variables[tvar][:] = [mean(a[var]),]	
 		else:
-			nco.variables[var][:] = array(a[var]).mean(0)[None,:] 
+			nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi))
 			
 	else: # No time averaging.
 	    for var in a.keys():

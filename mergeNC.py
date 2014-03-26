@@ -17,6 +17,8 @@ from numpy.ma import array,masked_all
 from numpy import  append,mean
 from glob import glob 
 
+# a new comment to test github
+
 class mergeNC:
   def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard',fullCheck=False):
 	self.fnsi=filesIn

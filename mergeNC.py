@@ -1,10 +1,3 @@
-# this file takes a list of netcdfs in, a netcdf out and a list of variables to save.
-
-
-# This class takes a list of input netcdf filenames, an output netcdf filename and a list of variables.
-# it automatically saves the dimensions, and the header.
-# It creates a new netcdf that contains the variables that you gave it from all the files in the input file list in chronological.
-# In combination with pruneNC.py, this scrip can take the 12hourly file,
 
 #from ncdfView import ncdfView
 from netCDF4 import Dataset,num2date,date2num
@@ -20,6 +13,10 @@ from glob import glob
 # a new comment to test github
 
 class mergeNC:
+  """ This class takes a list of input netcdf filenames, an output netcdf filename and a list of variables.
+   it automatically saves the dimensions, and the header.
+   It creates a new netcdf that contains the variables that you gave it from all the files in the input file list in chronological.
+  """
   def __init__(self, filesIn, filenameOut, variables, timeAverage=False,debug=False,calendar='standard',fullCheck=False):
 	self.fnsi=filesIn
 	self.fno=filenameOut
@@ -145,7 +142,8 @@ class mergeNC:
 	
 	# Fill Values:
 	for var in alwaysInclude:
-		if var in time:continue
+		#if var in time:continue
+		if var == tvar:continue # there may be more than one time variable: ie time and month.
 		if self.debug: print 'mergeNC:\tINFO:\tCopying ', var, ' ...', nci.variables[var][:].shape
 		try:nco.variables[var][:] = nci.variables[var][:].data
 		except:nco.variables[var][:] = nci.variables[var][:]
@@ -172,7 +170,8 @@ class mergeNC:
 
 		# not time:
 		for var in a.keys():
-		  if var in time:continue
+		  #if var in time:continue
+		  if var == tvar:continue # there may be more than one time variable: ie time and month.		  
 		  if var in nci.variables.keys(): arr = nci.variables[var][:]
 		  else:
 	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape

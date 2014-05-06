@@ -30,13 +30,14 @@ from collections import defaultdict
 
 
 class depthManipNC:
-  def __init__(self, filenameIn, filenameOut, variables, depthFlags='', timemean=False, debug=False):
+  def __init__(self, filenameIn, filenameOut, variables, depthFlags='', timemean=False, debug=False, 	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd']):
 	self.fni=filenameIn
 	self.fno=filenameOut
 	self.vars=variables
 	self.depthFlags=depthFlags
 	self.timemean=timemean
 	self.debug=debug
+	self.alwaysInclude = alwaysInclude
 	def returnEmptyStr():return ''
 	self.depthStrings=defaultdict(returnEmptyStr,(['-2', '(Deepest layer)'],['-1', '(Deepest layer)'],['0','(Surface)'],['1','(Depth Integrated)'],['-15', '(Deepest layer)'],))
 	self.run() 	
@@ -82,8 +83,7 @@ class depthManipNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd']
-	save = list(set(nci.variables.keys()).intersection(set(alwaysInclude) ) ) 
+	save = list(set(nci.variables.keys()).intersection(set(self.alwaysInclude) ) ) 
 	save = list(set(sorted(save + self.vars)))
 	
 	# create dimensions:

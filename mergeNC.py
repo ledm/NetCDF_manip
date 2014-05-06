@@ -7,7 +7,7 @@ from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array,masked_all
-from numpy import  append,mean
+from numpy import  append,mean,int32
 from glob import glob 
 
 # a new comment to test github
@@ -120,11 +120,17 @@ class mergeNC:
 	for var in save:
 		dt = nci.variables[var].dtype
 		
-		if self.debug: 
-				print 'mergeNC:\tINFO:\tCreating Variable:',var,nci.variables[var].dtype,nci.variables[var].dimensions,
-				print "zlib=True,complevel=5,fill_value=",default_fillvals['f8']
 
-	  	nco.createVariable(var, nci.variables[var].dtype, nci.variables[var].dimensions,zlib=True,complevel=5,fill_value=default_fillvals['f8'])
+		if dt in [int32([5,]).dtype,]:dfkey = 'i8'
+		else: dfkey = 'f8'
+		
+		if self.debug: 
+			print 'mergeNC:\tINFO:\tCreating Variable:',var,dt,nci.variables[var].dimensions,
+			print "zlib=True,complevel=5,fill_value=",default_fillvals[dfkey], dfkey		
+			
+		nco.createVariable(var, dt, nci.variables[var].dimensions,zlib=True,complevel=5,fill_value=default_fillvals[dfkey])
+	  	#try:	nco.createVariable(var, dt, nci.variables[var].dimensions,zlib=True,complevel=5,fill_value=default_fillvals[dfkey])
+	  	#except: nco.createVariable(var, dt, nci.variables[var].dimensions,zlib=True,complevel=5,fill_value=default_fillvals[dfkey])
 
 	# Long Names:
 	for var in save: 

@@ -11,7 +11,7 @@ from operator import itemgetter
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
 # list of variables to save, assuming some conventions
-alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','time_counter','deptht','depth', 'latitude', 'longitude','month','mask'] 
+alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','nav_lev','time_counter','deptht','depth', 'latitude', 'longitude','month','mask'] 
 		#'crs',]'lat_bnds','lon_bnds',
 
 

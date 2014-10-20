@@ -57,7 +57,8 @@ class pruneNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd']
+	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','longitude','latitude','depth','time_counter','nav_lat','nav_lon','time_counter']
+
 	save =   list(set(nci.variables.keys()).intersection(set(alwaysInclude) ) ) 
 	save = list(set(sorted(save + self.vars)))
 	

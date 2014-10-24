@@ -8,10 +8,12 @@ from numpy import array, int64
 from numpy.ma import array as marray, nonzero,masked_where,compressed,zeros
 from pruneNC import todaystr
 from operator import itemgetter
+from alwaysInclude import alwaysInclude
+
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
 # list of variables to save, assuming some conventions
-alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','nav_lev','time_counter','deptht','depth', 'latitude', 'longitude','month','mask'] 
+#alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','nav_lat','nav_lon','nav_lev','time_counter','deptht','depth', 'latitude', 'longitude','month','mask'] 
 		#'crs',]'lat_bnds','lon_bnds',
 
 
@@ -145,11 +147,11 @@ class convertToOneDNC:
 	for var in save: 
 		try:  	long_name=nci.variables[var].long_name
 		except:	
-		  if self.debug: print 'convertToOneDNC:\tWarning:\tNo long_name for ', var
+		  if self.debug: print 'convertToOneDNC:\tWARNING:\tNo long_name for ', var
 		  long_name = var
 		  
 		nco.variables[var].long_name=long_name
-		if self.debug: print 'convertToOneDNC:\t Adding long_name for ', var, long_name
+		if self.debug: print 'convertToOneDNC:\tINFO:\tAdding long_name for ', var, '\t',long_name
 		  
 	# Units:
 	nco.variables['index'].units=''
@@ -159,8 +161,10 @@ class convertToOneDNC:
 	nco.variables['index_x'].units=''
 					
 	for var in save: 
-		try:  	nco.variables[var].units=nci.variables[var].units
-		except: print 'convertToOneDNC:\tWarning:\tNo units for ', var	
+		try:  	
+			nco.variables[var].units=nci.variables[var].units
+			if self.debug: print 'convertToOneDNC:\tINFO:\tAdding units for ', var, '\t',nci.variables[var].units		
+		except: print 'convertToOneDNC:\tWARNING:\tNo units for ', var	
 		
 	# Fill Values:
 	def itemsgetter(a):
@@ -225,6 +229,17 @@ class convertToOneDNC:
 				outarr.append(arr[c[0][d]])
 			try: print var, d
 			except: var, "not found"
+		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==1:
+			d = 0
+			#if var.lower() in ['time','time_counter','t','month']:	d = 0
+			#if var.lower() in ['depth','deptht',]:		d = 1
+			#if var.lower() in ['latbnd','lat','latitude']:	d = 2			
+			#if var.lower() in ['lonbnd','lon','longitude']: d = 3
+			#for c in (CoordsToKeep.keys()):	
+			for c in sorted_Coords:
+				outarr.append(arr[c[0][d]])
+			try: print var, d
+			except: var, "not found"			
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==3:
 			if var.lower() in ['time','time_counter','t','month']:	d = 0
 			#if var.lower() in ['depth','deptht',]:		d = 1
@@ -257,7 +272,7 @@ class convertToOneDNC:
 		    		#print arr[c[0]]
 				outarr.append(arr[ (c[0][0],c[0][1],c[0][2],c[0][3]) ])
 		else:
-			print "How many dimensions?", arr.ndim
+			print "How many dimensions?", arr.ndim, len(sorted_Coords[0][0])
 			assert False
 		outarr= marray(outarr)
 		if self.debug: print 'convertToOneDNC:\tINFO:\tSaving var:',var, arr.shape, '->', outarr.shape , 'coords:',len(sorted_Coords)

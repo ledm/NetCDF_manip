@@ -6,6 +6,7 @@ from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array as marray
+from alwaysInclude import alwaysInclude
 """
 	this file takes a netcdf in, a netcdf out and a list of variables to save.
 	it automatically saves the dimensions, and the header.
@@ -13,7 +14,7 @@ from numpy.ma import array as marray
 	This class takes an input netcdf filename, an output netcdf filename and a list of variables to keep. Usually ['var', 'lat','lon',time','depth'].
 	It creates a new netcdf that contains only the variables that you gave it. 
 """
-
+alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','MONTH','Latitude','Longitude', 		'DEPTH','TIME','longitude','latitude','depth','time_counter','nav_lat','nav_lon','time_counter','deptht','index',]
 
 class pruneNC:
   def __init__(self, filenameIn, filenameOut, variables, depthInt = False, timemean=False, debug=False):
@@ -57,7 +58,7 @@ class pruneNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','DEPTH','TIME','longitude','latitude','depth','time_counter','nav_lat','nav_lon','time_counter','deptht']
+
 
 	save =   list(set(nci.variables.keys()).intersection(set(alwaysInclude) ) ) 
 	save = list(set(sorted(save + self.vars)))

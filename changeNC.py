@@ -7,7 +7,7 @@ except:from netCDF4 import Dataset, _default_fillvals
 from datetime import date
 from getpass import getuser
 from os.path import exists
-
+from alwaysInclude import alwaysInclude
 
 
 class changeNC:

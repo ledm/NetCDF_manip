@@ -194,7 +194,9 @@ class changeNC:
 		if self.av[var]['name']:newname = self.av[var]['name'] 
 		if newname.lower() in ['false', 'none','remove', 'delete', 0]:continue		
 		if self.av[var]['convert']:func = self.av[var]['convert']
-		if len(self.av[var]['newData']): arr=self.av[var]['newData']
+		if len(self.av[var]['newData']): 
+			if self.debug: print 'changeNC:\tINFO:\tAdded newData into ', var
+			arr=self.av[var]['newData']
 		else: 	arr = nci.variables[var][:]		
 		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, arr.shape,
 		nco.variables[newname][:] =func(arr)

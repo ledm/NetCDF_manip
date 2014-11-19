@@ -135,6 +135,7 @@ class convertToOneDNC:
 	nco.createVariable('index_y', int64, ['index',],zlib=True,complevel=5)#,chunksizes=10000)		
 	nco.createVariable('index_x', int64, ['index',],zlib=True,complevel=5)#,chunksizes=10000)
 	for var in save:
+		if var in ['index','index_t','index_z','index_y','index_x']:continue
 		nco.createVariable(var, nci.variables[var].dtype, ['index',],zlib=True,complevel=5)#,chunksizes=10000)
 	
 	# Long Names:

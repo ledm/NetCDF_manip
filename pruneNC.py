@@ -14,7 +14,7 @@ from alwaysInclude import alwaysInclude
 	This class takes an input netcdf filename, an output netcdf filename and a list of variables to keep. Usually ['var', 'lat','lon',time','depth'].
 	It creates a new netcdf that contains only the variables that you gave it. 
 """
-alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd','LONGITUDE','LATITUDE','MONTH','Latitude','Longitude', 		'DEPTH','TIME','longitude','latitude','depth','time_counter','nav_lat','nav_lon','time_counter','deptht','index',]
+
 
 class pruneNC:
   def __init__(self, filenameIn, filenameOut, variables, depthInt = False, timemean=False, debug=False):

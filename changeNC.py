@@ -37,7 +37,15 @@ class changeNC:
 	av['oldVarName']['units']	='newVarUnits'
 	av['oldVarName']['long_name']	='newVarLongName'
 	av['oldVarName']['newDims']	=('x','y',z') # these need to exist aready 
-		
+	
+	to add a new variable:
+	av['newVar'][var]['name']
+	av['newVar'][var]['newDims']	
+	av['newVar'][var]['dtype']
+	av['newVar'][var]['long_name']
+	av['newVar'][var]['units']
+	av['newVar'][var]['newData']
+
 	to remove a variable from the file, set it's name to "False", "Remove", or "Delete"
 	av['t']['name']='False'
 
@@ -109,7 +117,7 @@ class changeNC:
 	  newDim = dim
 	  dimSize=len(nci.dimensions[dim])
 	  if nci.dimensions[dim].isunlimited(): dimSize = None
-	  if self.av['dim'][dim]['name']: newDim=self.av['dim'][dim]['name']
+	  if self.av['dim'][dim]['name']:    newDim  = self.av['dim'][dim]['name']
 	  if self.av['dim'][dim]['newSize']: dimSize = self.av['dim'][dim]['newSize']
 	  nco.createDimension(newDim, dimSize)
 	  if self.debug: print 'changeNC:\tINFO:\tadding dimension: ',dim,'-->', newDim, '\t(',dimSize,')'

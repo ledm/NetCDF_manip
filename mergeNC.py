@@ -72,7 +72,9 @@ class mergeNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'longitude', 't','nav_lat','nav_lon', 'time_counter', 'deptht','depth','depthu','depthv','depthw','z','month','bathymetry']
+	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
+			 't','nav_lat','nav_lon', 'time_counter', 
+			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry']
 	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
 	time = intersection(['time', 't','time_counter','month',], alwaysInclude)

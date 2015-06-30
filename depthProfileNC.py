@@ -83,10 +83,10 @@ class depthProfileNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'nav_lat','nav_lat', 'time_counter', 'deptht',]
+	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'longitude', 'nav_lat','nav_lat', 'latitude','time_counter', 'deptht',]
 	timeNames = ['time', 'time_counter', 't']
-	latNames = ['lat', 'latbnd','nav_lat','x']
-	lonNames = ['lon', 'lonbnd','nav_lon','y']
+	latNames = ['lat', 'latbnd','nav_lat','x','latitude',]
+	lonNames = ['lon', 'lonbnd','nav_lon','y','longitude',]
 	save =   list(set(nci.variables.keys()).intersection(set(alwaysInclude) ) ) 
 	save = list(set(sorted(save + self.vars)))
 	

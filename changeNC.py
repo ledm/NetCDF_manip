@@ -128,14 +128,21 @@ class changeNC:
 
 	try:	newVars = self.av['newVar'].keys()
 	except:	newVars = []
-
+	
+	#for var in keys:
+	#	if self.av[var]['name']:newname = self.av[var]['name']
+	#	if newname.lower() in ['false', 'none','remove', 'delete', 0]:
+	#		if self.debug: print 'changeNC:\tINFO:\tremoving variable: ',var
+	#		continue
+			
 	
 	# create Variables:
 	for var in newVars:
 		dimensions 	= self.av['newVar'][var]['newDims']
 		vartype		= self.av['newVar'][var]['dtype']
-		nco.createVariable(var, vartype, tuple(dimensions),zlib=True,complevel=5)
 		if self.debug: print 'changeNC:\tINFO:\tadding new variable: ',var, '\t(',dimensions,')'
+		nco.createVariable(var, vartype, tuple(dimensions),zlib=True,complevel=5)
+
 	
 	for var in keys:
 		if var in newVars:continue 	
@@ -194,7 +201,7 @@ class changeNC:
 	if self.debug: print 'changeNC:\tINFO:\tAbout to start Filling with new data:', newVars	
 	for var in newVars:
 		nco.variables[var][:] = self.av['newVar'][var]['newData']
-		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'], 'with new data'
+		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'].shape, 'with new data'
 	for var in keys:
 		if var in newVars:continue 	
 		newname = var

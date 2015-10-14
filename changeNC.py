@@ -40,7 +40,8 @@ class changeNC:
   a lambda function can be assigned to a variable for simple conversions.
 
   Further details:
-	To add or change a netcdf attribute:
+  	from changeNC import changeNC, AutoVivification
+	#To add or change a netcdf attribute:
 	av = AutoVivification()
 	av['att']['Description'] = 'New description'
 

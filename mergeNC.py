@@ -227,8 +227,9 @@ class mergeNC:
 		if var == tvar:
 			nco.variables[tvar][:] = [mean(a[var]),]	
 		else:
-			nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi))
-			
+			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
+			nco.variables[var][:] = array(a[var]).mean(0)[None,:]
+						
 	else: # No time averaging.
 	    for var in a.keys():
 		if self.debug: print 'mergeNC:\tINFO:\tsaving ', var, ' ...',nco.variables[var][:].shape,array(a[var]).shape, nco.variables[var].dimensions #, a[var][0]

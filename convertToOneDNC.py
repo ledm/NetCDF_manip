@@ -144,13 +144,9 @@ class convertToOneDNC:
 	
 		
 	# create dimensions:
-	#for d in nci.dimensions.keys():
-	#  if d in ['time',]: nco.createDimension(d, None)
-	#  else:		     nco.createDimension(d, len(nci.dimensions[d]))
 	nco.createDimension('index', None)
 
 	# create Variables:
-
 	nco.createVariable('index',   int64, ['index',],zlib=True,complevel=5)#,chunksizes=10000)	
 	nco.createVariable('index_t', int64, ['index',],zlib=True,complevel=5)#,chunksizes=10000)		
 	nco.createVariable('index_z', int64, ['index',],zlib=True,complevel=5)#,chunksizes=10000)		
@@ -219,7 +215,7 @@ class convertToOneDNC:
 		nco.sync()	
 		
 	if len(sorted_Coords[0][0]) ==3:
-		print "3D:", sorted_Coords[0][0]	
+		print "3D:", sorted_Coords[0][0]
 		if self.debug: print 'convertToOneDNC:\tINFO:\tCopying index t ...' 	
 		nco.variables['index_t'][:] = array([a[0][0] for a in sorted_Coords])
 		nco.sync()
@@ -239,60 +235,61 @@ class convertToOneDNC:
 		nco.sync()		
 	
 	for var in save:
-		if self.debug: print 'convertToOneDNC:\tINFO:\tCopying ', var, ' ...' 
+		if self.debug: print 'convertToOneDNC:\tINFO:\tCopying ', var, ' ...'
 		arr = nci.variables[var][:]
+		if len(arr)==0:
+			print 'convertToOneDNC:\tWarning:\tIt looks like the netcdf ',self.fni,'does not contain the variable', var
+			 
 		outarr = []
-		if arr.ndim ==1 and len(sorted_Coords[0][0]) ==4:
+		
+		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
 			if var.lower() in ['time','time_counter','t','month']:	d = 0
-			if var.lower() in ['depth','deptht','depthu','depthv',]:		d = 1
+			if var.lower() in ['depth','deptht','depthu','depthv','lev']:	d = 1
 			if var.lower() in ['latbnd','lat','latitude']:	d = 2			
 			if var.lower() in ['lonbnd','lon','longitude']: d = 3
-			#for c in (CoordsToKeep.keys()):	
+			print var, 'convertToOneDNC:\tINFO:\tndim: (1-4)',arr.ndim, var, sorted_Coords[0][0], d, #arr[0]
 			for c in sorted_Coords:
 				outarr.append(arr[c[0][d]])
 			try: print var, d
 			except: var, "not found"
+			
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==1:
-			d = 0
-			#if var.lower() in ['time','time_counter','t','month']:	d = 0
-			#if var.lower() in ['depth','deptht',]:		d = 1
-			#if var.lower() in ['latbnd','lat','latitude']:	d = 2			
-			#if var.lower() in ['lonbnd','lon','longitude']: d = 3
-			#for c in (CoordsToKeep.keys()):	
+			d = 0	
+			print var, 'convertToOneDNC:\tINFO:\tndim: (1-1)',arr.ndim,var, sorted_Coords[0][0], d		
 			for c in sorted_Coords:
 				outarr.append(arr[c[0][d]])
 			try: print var, d
-			except: var, "not found"			
+			except: var, "not found"
+						
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==3:
 			if var.lower() in ['time','time_counter','t','month']:	d = 0
 			#if var.lower() in ['depth','deptht',]:		d = 1
 			if var.lower() in ['latbnd','lat','latitude']:	d = 1			
 			if var.lower() in ['lonbnd','lon','longitude']: d = 2
-			#for c in (CoordsToKeep.keys()):	
+			#for c in (CoordsToKeep.keys()):
+			print var, 'convertToOneDNC:\tINFO:\tndim: (1-3)',arr.ndim,var, sorted_Coords[0][0], d									
 			for c in sorted_Coords:
 				outarr.append(arr[c[0][d]])
 			try: print var, d
 			except: var, "not found"
+			
 		elif arr.ndim ==2:
 			if var.lower() in ['nav_lat','nav_lon']:			d = (2,3)
 			if var.lower() in ['deptht','depthu','depthv','latitude','longitude','depth',]:		d = (0,1)
 			if var.lower() in ['mask'] and len(sorted_Coords[0][0]) ==3: 	d = (1,2) # because of MLD datasets.
-			print var, 'convertToOneDNC:\tINFO:\tndim: 2',var, d
 			
+			print var, 'convertToOneDNC:\tINFO:\tndim: (2)',arr.ndim,var, sorted_Coords[0][0], d
 			for c in sorted_Coords:			#for c in sorted(CoordsToKeep.keys()):	
 				outarr.append(arr[(c[0][d[0]],c[0][d[1]])])	
 		elif arr.ndim ==3:
-			#if var.lower() in ['fAirSeaC',]:
-			#d = (0,2,3)
-			#print var, 'lendth : 3'
+			print var, 'convertToOneDNC:\tINFO:\tndim: (3)',arr.ndim,var, sorted_Coords[0][0]
 			for c in sorted_Coords:
 				if len(c[0]) == 4: outarr.append(arr[(c[0][0],c[0][2],c[0][3])])
 				if len(c[0]) == 3: outarr.append(arr[(c[0][0],c[0][1],c[0][2])])
 		elif arr.ndim ==4:
-		    #for c in sorted(CoordsToKeep.keys()):
+			print var, 'convertToOneDNC:\tINFO:\tndim: (4)',arr.ndim,var, sorted_Coords[0][0]
 		    	for c in sorted_Coords:
-		    		#print c, c[0], arr.shape
-		    		#print arr[c[0]]
+		    		#print 'convertToOneD:',var, c, c[0], arr.shape, arr[c[0]]
 				outarr.append(arr[ (c[0][0],c[0][1],c[0][2],c[0][3]) ])
 		else:
 			print "How many dimensions?", arr.ndim, len(sorted_Coords[0][0])

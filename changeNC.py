@@ -237,7 +237,7 @@ class changeNC:
 		else: 	arr = nci.variables[var][:]		
 		if self.debug: print 'changeNC:\tINFO:\tCopying ', var, ' ...' ,newname, arr.shape,
 		nco.variables[newname][:] =func(arr)
-		if self.debug: print '->', nco.variables[newname][:].shape
+		#if self.debug: print '->', nco.variables[newname][:].shape
 	# Close netcdfs:
 	nco.close()
 	nci.close()

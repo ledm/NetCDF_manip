@@ -28,7 +28,7 @@ alwaysInclude = [	'time', 'lat','lon',
 			'LONGITUDE','LATITUDE','DEPTH','TIME', 'MONTH',
 			'Longitude','Latitude','Depth','Time','Month',
 			'nav_lat','nav_lon','nav_lev',
-			'deptht','depthu','depthv',
+			'deptht','depthu','depthv','depthw','lev',
 			'time_counter','depth', 'latitude', 'longitude','month','mask', 'index',] 
 
 

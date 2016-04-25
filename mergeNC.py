@@ -32,6 +32,7 @@ from getpass import getuser
 from os.path import exists
 from numpy.ma import array,masked_all
 from numpy import  append,mean,int32
+import numpy as np
 from glob import glob 
 
 # a new comment to test github
@@ -98,8 +99,9 @@ class mergeNC:
 	# list of variables to save, assuming some conventions
 	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
 			 't','nav_lat','nav_lon', 'time_counter', 
-			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry',
-			  'lat_bnds',  'lon_bnds', 'depth_bnds',]
+			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth'
+			  'lat_bnds',  'lon_bnds', 'depth_bnds',
+			  'ensemble',]
 	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
 	time = intersection(['time', 't','time_counter','month',], alwaysInclude)
@@ -207,28 +209,39 @@ class mergeNC:
 		  if var == tvar:continue # there may be more than one time variable: ie time and month.		  
 		  if var in nci.variables.keys(): arr = nci.variables[var][:]
 		  else:
-	  	    if self.debug:print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
-
-	  	    arr = masked_all(nco.variables[var][0,:].shape)
+	  	    	print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
+	  	    	arr = masked_all(nco.variables[var][0,:].shape)
 		  if not self.timeAverage:
-		  	if not len(a[var]): a[var]=arr
-			else:    a[var] = append(a[var], arr, axis=0)
+		    	if not len(a[var]): a[var]=arr
+		    	else:    a[var] = append(a[var], arr, axis=0)
 		  else:
 		  	if not len(a[var]): a[var]=arr
-			else:    a[var] += arr
+			else:   a[var] = append(a[var], arr, axis=0)
 						
-		  if self.debug: print 'mergeNC:\tINFO\tvar:', t, var, 'len:',len(a[var]), arr.shape,a[var].shape
+		  if self.debug: print 'mergeNC:\tINFO\tvar:', t, var, 'len:',len(a[var]), arr.shape,array(a[var]).shape
 
 		nci.close()
 	
 	if self.timeAverage: 
 	    for var in a.keys():
 		if self.debug: print "mergeNC:\tINFO\tTime Average:", var 
+		
 		if var == tvar:
-			nco.variables[tvar][:] = [mean(a[var]),]	
+			nco.variables[tvar][:] = [array(a[var]).mean(),]	
 		else:
 			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
-			nco.variables[var][:] = array(a[var]).mean(0)[None,:]
+			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
+			try:	
+				timeAverageArr = np.ma.array(a[var])
+				timeAverageArr = np.ma.masked_where(timeAverageArr.mask +(timeAverageArr > 9.969e+36),timeAverageArr)
+				nco.variables[var][:] = timeAverageArr.mean(0)[None,:]
+			except:
+				assert 0
+				if tvar not in nco.variables[var].dimensions:
+			  	    	print 'mergeNC:\tWARNING:', var,' has no time dimension:',nco.variables[var].dimensions 			
+					nco.variables[var][:] = array(a[var])
+			if self.debug: print "mergeNC:\tINFO\tTime Average:", var, nco.variables[var][:].shape,array(a[var]).shape, nco.variables[var].dimensions 
+			if self.debug: print "mergeNC:\tINFO\tTime Average: min-max range", var,  	nco.variables[var][:].min(),'-->',nco.variables[var][:].max()
 						
 	else: # No time averaging.
 	    for var in a.keys():

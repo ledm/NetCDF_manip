@@ -30,7 +30,7 @@ from numpy import array, int64
 from numpy.ma import array as marray, nonzero,masked_where,compressed,zeros
 from pruneNC import todaystr
 from operator import itemgetter
-from alwaysInclude import alwaysInclude
+from alwaysInclude import alwaysInclude, depthNames
 
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
@@ -244,7 +244,7 @@ class convertToOneDNC:
 		
 		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
 			if var.lower() in ['time','time_counter','t','month']:	d = 0
-			if var.lower() in ['depth','deptht','depthu','depthv','lev']:	d = 1
+			if var.lower() in depthNames:	d = 1
 			if var.lower() in ['latbnd','lat','latitude']:	d = 2			
 			if var.lower() in ['lonbnd','lon','longitude']: d = 3
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-4)',arr.ndim, var, sorted_Coords[0][0], d, #arr[0]
@@ -263,7 +263,7 @@ class convertToOneDNC:
 						
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==3:
 			if var.lower() in ['time','time_counter','t','month']:	d = 0
-			#if var.lower() in ['depth','deptht',]:		d = 1
+			#if var.lower() in depthNames:		d = 1
 			if var.lower() in ['latbnd','lat','latitude']:	d = 1			
 			if var.lower() in ['lonbnd','lon','longitude']: d = 2
 			#for c in (CoordsToKeep.keys()):

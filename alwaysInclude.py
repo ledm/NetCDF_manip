@@ -30,12 +30,15 @@ alwaysInclude = [	'time', 'lat','lon',
 			'nav_lat','nav_lon','nav_lev',
 			'deptht','depthu','depthv','depthw','lev',
 			'Pressure','pressure','PRESSURE',
-			'time_counter','depth', 'latitude', 'longitude','month','mask', 'index',] 
+			'time_counter','depth', 'latitude', 'longitude','month','mask',
+			'index','index_x','index_y','index_z','index_t',
+			]
 
 depthNames	= [	'depth','DEPTH','Depth',
 			'deptht','depthu','depthv','depthw',
 			'lev','nav_lev',
 			'Pressure','pressure','PRESSURE',
+			'index_z',
 		  ]
 
 

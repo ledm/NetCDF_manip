@@ -30,7 +30,7 @@ from numpy import array, int64
 from numpy.ma import array as marray, nonzero,masked_where,compressed,zeros
 from pruneNC import todaystr
 from operator import itemgetter
-from alwaysInclude import alwaysInclude, depthNames
+from alwaysInclude import alwaysInclude, depthNames,timeNames
 
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
@@ -241,12 +241,13 @@ class convertToOneDNC:
 			print 'convertToOneDNC:\tWarning:\tIt looks like the netcdf ',self.fni,'does not contain the variable', var
 			 
 		outarr = []
+		print "If you code is failing here, then you may need to check that your dimensions are names correctly in alwaysInclude.py:timeNames and depthNames"
 		
 		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
-			if var.lower() in ['time','time_counter','t','month']:	d = 0
+			if var.lower() in timeNames:	d = 0
 			if var.lower() in depthNames:	d = 1
-			if var.lower() in ['latbnd','lat','latitude']:	d = 2			
-			if var.lower() in ['lonbnd','lon','longitude']: d = 3
+			if var.lower() in latnames:	d = 2			
+			if var.lower() in lonnames: 	d = 3
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-4)',arr.ndim, var, sorted_Coords[0][0], d, #arr[0]
 			for c in sorted_Coords:
 				outarr.append(arr[c[0][d]])
@@ -262,10 +263,10 @@ class convertToOneDNC:
 			except: var, "not found"
 						
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==3:
-			if var.lower() in ['time','time_counter','t','month']:	d = 0
+			if var.lower() in timeNames:	d = 0
 			#if var.lower() in depthNames:		d = 1
-			if var.lower() in ['latbnd','lat','latitude']:	d = 1			
-			if var.lower() in ['lonbnd','lon','longitude']: d = 2
+			if var.lower() in latnames:	d = 1			
+			if var.lower() in lonnames: 	d = 2
 			#for c in (CoordsToKeep.keys()):
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-3)',arr.ndim,var, sorted_Coords[0][0], d									
 			for c in sorted_Coords:
@@ -274,9 +275,13 @@ class convertToOneDNC:
 			except: var, "not found"
 			
 		elif arr.ndim ==2:
-			if var.lower() in ['nav_lat','nav_lon']:			d = (2,3)
-			if var.lower() in ['deptht','depthu','depthv','latitude','longitude','depth',]:		d = (0,1)
-			if var.lower() in ['mask'] and len(sorted_Coords[0][0]) ==3: 	d = (1,2) # because of MLD datasets.
+			if var.lower() in ['nav_lat','nav_lon']:			
+				d = (2,3)
+			elif var.lower() in ['deptht','depthu','depthv','latitude','longitude','depth',]:		
+				d = (0,1)
+			elif var.lower() in ['mask'] and len(sorted_Coords[0][0]) ==3: 	
+				d = (1,2) # because of MLD datasets.
+			else:	d = (0,1)
 			
 			print var, 'convertToOneDNC:\tINFO:\tndim: (2)',arr.ndim,var, sorted_Coords[0][0], d
 			for c in sorted_Coords:			#for c in sorted(CoordsToKeep.keys()):	

@@ -174,15 +174,19 @@ class changeNC:
 			if self.debug: print 'changeNC:\tINFO:\tremoving variable: ',var
 			continue
 		dimensions 	= list(nci.variables[var].dimensions)
-		vartype 	= nci.variables[var].dtype
 		
+		if self.av[var]['dtype']=={}:	
+			vartype 	= nci.variables[var].dtype
+		else:	vartype 	= self.av[var]['dtype']
+		
+			
 		for d,dim in enumerate(dimensions):
 			if self.av['dim'][dim]['name']: dimensions[d] = self.av['dim'][dim]['name']
 			
 		if self.av[var]['newDims']: dimensions = self.av[var]['newDims']
 
       		nco.createVariable(newname, vartype, tuple(dimensions),zlib=True,complevel=5)
-	  	if self.debug: print 'changeNC:\tINFO:\tadding variable: ',var,'-->', newname, '\t(',dimensions,')'
+	  	if self.debug: print 'changeNC:\tINFO:\tadding variable: ',var,'-->', newname, '\t(',dimensions,')', '\tvartype:',vartype
 	  
 	# Long Names:
 	for var in newVars:

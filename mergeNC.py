@@ -31,9 +31,10 @@ from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array,masked_all
-from numpy import  append,mean,int32
+from numpy import  append,mean,int32,int16
 import numpy as np
 from glob import glob 
+from alwaysInclude import alwaysInclude as alwaysIncludList, timeNames
 
 # a new comment to test github
 
@@ -97,12 +98,7 @@ class mergeNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
-			 't','nav_lat','nav_lon', 'time_counter', 
-			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth'
-			  'lat_bnds',  'lon_bnds', 'depth_bnds',
-			  'ensemble',]
-	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
+	alwaysInclude = intersection(nci.variables.keys(),alwaysIncludList) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
 	time = intersection(['time', 't','time_counter','month',], alwaysInclude)
 	if len(time) ==1: tvar=time[0]
@@ -151,6 +147,7 @@ class mergeNC:
 		
 
 		if dt in [int32([5,]).dtype,]:dfkey = 'i8'
+		elif dt in [int16([5,]).dtype,]:dfkey = 'i4'		
 		else: dfkey = 'f8'
 		
 		if self.debug: 
@@ -226,12 +223,14 @@ class mergeNC:
 	    for var in a.keys():
 		if self.debug: print "mergeNC:\tINFO\tTime Average:", var 
 		
-		if var == tvar:
+		if var in timeNames:
 			nco.variables[tvar][:] = [array(a[var]).mean(),]	
 		else:
 			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
+			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", var
 			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
 			try:	
+				
 				timeAverageArr = np.ma.array(a[var])
 				timeAverageArr = np.ma.masked_where(timeAverageArr.mask +(timeAverageArr > 9.969e+36),timeAverageArr)
 				nco.variables[var][:] = timeAverageArr.mean(0)[None,:]

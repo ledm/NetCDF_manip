@@ -30,7 +30,7 @@ from numpy import array, int64
 from numpy.ma import array as marray, nonzero,masked_where,compressed,zeros
 from pruneNC import todaystr
 from operator import itemgetter
-from alwaysInclude import alwaysInclude, depthNames,timeNames
+from alwaysInclude import alwaysInclude, depthNames,timeNames, latnames, lonnames
 
 """	This routine takes a netcdf input and creates a new one with only 1 dimension. """
 
@@ -97,8 +97,8 @@ class convertToOneDNC:
 	self.debug=debug
 	self.dictToKeep = dictToKeep
 	self.run()
-	
 
+	
   def run(self):
 	if not exists(self.fni):
 		print 'convertToOneDNC:\tERROR:\tinputfile name does not exists:', self.fni
@@ -233,6 +233,7 @@ class convertToOneDNC:
 			
 		nco.variables['index_x'][:] = array([a[0][2] for a in sorted_Coords])
 		nco.sync()		
+	errorScript = "If it is failing here, then you need to check that your dimensions are names correctly in netcdf_manip/alwaysInclude.py:timeNames, depthNames, lonnames and latnames"
 	
 	for var in save:
 		if self.debug: print 'convertToOneDNC:\tINFO:\tCopying ', var, ' ...'
@@ -241,7 +242,7 @@ class convertToOneDNC:
 			print 'convertToOneDNC:\tWarning:\tIt looks like the netcdf ',self.fni,'does not contain the variable', var
 			 
 		outarr = []
-		print "If you code is failing here, then you may need to check that your dimensions are names correctly in alwaysInclude.py:timeNames and depthNames"
+
 		
 		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
 			if var.lower() in timeNames:	d = 0
@@ -250,7 +251,9 @@ class convertToOneDNC:
 			if var.lower() in lonnames: 	d = 3
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-4)',arr.ndim, var, sorted_Coords[0][0], d, #arr[0]
 			for c in sorted_Coords:
-				outarr.append(arr[c[0][d]])
+				try:	outarr.append(arr[c[0][d]])
+				except:	raise AssertionError(errorScript)	 		
+				
 			try: print var, d
 			except: var, "not found"
 			
@@ -258,7 +261,8 @@ class convertToOneDNC:
 			d = 0	
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-1)',arr.ndim,var, sorted_Coords[0][0], d		
 			for c in sorted_Coords:
-				outarr.append(arr[c[0][d]])
+				try:	outarr.append(arr[c[0][d]])
+				except:	raise AssertionError(errorScript)	 						
 			try: print var, d
 			except: var, "not found"
 						
@@ -270,7 +274,8 @@ class convertToOneDNC:
 			#for c in (CoordsToKeep.keys()):
 			print var, 'convertToOneDNC:\tINFO:\tndim: (1-3)',arr.ndim,var, sorted_Coords[0][0], d									
 			for c in sorted_Coords:
-				outarr.append(arr[c[0][d]])
+				try:	outarr.append(arr[c[0][d]])
+				except:	raise AssertionError(errorScript)	 		
 			try: print var, d
 			except: var, "not found"
 			
@@ -285,7 +290,8 @@ class convertToOneDNC:
 			
 			print var, 'convertToOneDNC:\tINFO:\tndim: (2)',arr.ndim,var, sorted_Coords[0][0], d
 			for c in sorted_Coords:			#for c in sorted(CoordsToKeep.keys()):	
-				outarr.append(arr[(c[0][d[0]],c[0][d[1]])])	
+				try:	outarr.append(arr[(c[0][d[0]],c[0][d[1]])])	
+				except:	raise AssertionError(errorScript)	 		
 		elif arr.ndim ==3:
 			print var, 'convertToOneDNC:\tINFO:\tndim: (3)',arr.ndim,var, sorted_Coords[0][0]
 			for c in sorted_Coords:

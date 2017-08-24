@@ -31,13 +31,17 @@
 """
 
 def completeList(alist):
+	"""
+	This takes a list of strings, and extends the list
+	with lots of permutations of uppercase/lowercase/title formattings.
+	"""
 	alist = list(alist)
 	alist.extend([l+'s' for l in alist])	# add an s on the end, just in case
 	list2 = alist[:]
 	list2.extend([t.lower() for t in alist])
 	list2.extend([t.upper() for t in alist])
 	list2.extend([t.title() for t in alist])	
-	d = {l:1 for l in list2} 	# cast to a dict to remve duplicates
+	d = {l:1 for l in list2} 	# cast to a dict to remove duplicates
 	return sorted(d.keys())
 	
 
@@ -51,7 +55,7 @@ depthNames	= [	'depth','DEPTH','Depth',
 		  ]
 depthNames = completeList(depthNames)
 
-timeNames = ['time','time_counter','time_cenetered','date','month','index_t','timePlot']
+timeNames = ['time','date','month','index_t','timePlot','time_centered','time_counter',] 
 timeNames = completeList(timeNames)
 
 

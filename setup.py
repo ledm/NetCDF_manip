@@ -23,15 +23,10 @@ setup(name="netcdf_manip",
           'Programming Language :: Python :: 2.7',
           'Operating System :: UNIX',
       ],
-      packages=["netcdf_manip"],
       install_requires=[
           "numpy",
           "netCDF4", 
           "datetime",
-          "os",
-          "operator",
-          "getpass",
-          "glob",
       ],
       )
 

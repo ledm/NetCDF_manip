@@ -52,6 +52,7 @@ depthNames	= [	'depth','DEPTH','Depth',
 			'Pressure','pressure','PRESSURE',
 			'index_z',
 			'level',
+			'z',
 		  ]
 depthNames = completeList(depthNames)
 

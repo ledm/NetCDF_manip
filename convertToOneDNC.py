@@ -26,6 +26,7 @@ except: from netCDF4 import Dataset, _default_fillvals
 from datetime import date
 from getpass import getuser
 from os.path import exists
+import numpy as np
 from numpy import array, int64
 from numpy.ma import array as marray, nonzero,masked_where,compressed,zeros
 from pruneNC import todaystr
@@ -39,9 +40,46 @@ from alwaysInclude import alwaysInclude, depthNames,timeNames, latnames, lonname
 		#'crs',]'lat_bnds','lon_bnds',
 
 
+def getCoordsToKeep_new(nc,variables,newMask='',debug = False): 
+	"""This routine takes an ncdfView object, a list of variables,
+	   and tests which coordinates should be saved.
+	   A Mask can be applied instead.
+	"""
+	CoordsToKeep={}
+	for var in variables:
+		if var in alwaysInclude: continue
+		arr = nc.variables[var][:]
+		if len(newMask):
+			out = []
+			if newMask.shape != arr.shape:
+				if debug:'getCoordsToKeep:\t',var,'Wrong shape'
+				continue
+			try: # 1D arrays
+			  for i,m in enumerate(newMask):
+				if not m: continue
+				out.append(arr[i])	
+			  arr= array(out).squeeze()
+			except:
+				# multi dimensional arrays
+			  arr = masked_where(newMask,array(arr))	
+		#nearlyZero = 1.E-6
+		nzdims = len(arr)		
+		for i,a in enumerate(arr[0]):
+			coords = tuple([arr[j][i] for j in xrange(nzdims)])
+			print coords, nzdims
+			try: 
+			  	if i in CoordsToKeep[coords]:pass
+			except:
+			  	try:	CoordsToKeep[coords].append(i)
+			  	except: CoordsToKeep[coords] = [i,]
+		if debug: print "getCoordsToKeep:\t",var,"\tndims:", nzdims, len(nz[0]),"\tNumber of Coords:", len(CoordsToKeep.keys())
+	return CoordsToKeep,variables
+
+
 def getCoordsToKeep(nc,variables,newMask='',debug = False): 
-	"""This routine takes an ncdfView object, a list of varialbes, and tests which coordinates should be saved.
-	   A Mask can be applied too.
+	"""This routine takes an ncdfView object, a list of variables,
+	   and tests which coordinates should be saved.
+	   A Mask can be applied instead.
 	"""
 	CoordsToKeep={}
 	for var in variables:
@@ -80,6 +118,7 @@ def getCoordsToKeep(nc,variables,newMask='',debug = False):
 				  except: CoordsToKeep[coords] = [i,]
 			else:
 				coords = tuple([nz[j][i] for j in xrange(nzdims)])
+				print coords
 				try: 
 				  if i in CoordsToKeep[coords]:pass
 				except:
@@ -87,7 +126,8 @@ def getCoordsToKeep(nc,variables,newMask='',debug = False):
 				  except: CoordsToKeep[coords] = [i,]
 		if debug: print "getCoordsToKeep:\t",var,"\tndims:", nzdims, len(nz[0]),"\tNumber of Coords:", len(CoordsToKeep.keys())
 	return CoordsToKeep,variables
-			
+	
+				
 class convertToOneDNC:
   def __init__(self, filenameIn, filenameOut, newMask='', variables=[], debug=False,dictToKeep=''):
 	self.fni=filenameIn
@@ -242,8 +282,6 @@ class convertToOneDNC:
 			print 'convertToOneDNC:\tWarning:\tIt looks like the netcdf ',self.fni,'does not contain the variable', var
 			 
 		outarr = []
-
-		
 		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
 			if var.lower() in timeNames:	d = 0
 			if var.lower() in depthNames:	d = 1
@@ -305,14 +343,22 @@ class convertToOneDNC:
 		else:
 			print "How many dimensions?", arr.ndim, len(sorted_Coords[0][0])
 			assert False
-		outarr= marray(outarr)
-		if self.debug: print 'convertToOneDNC:\tINFO:\tSaving var:',var, arr.shape, '->', outarr.shape , 'coords:',len(sorted_Coords)
-		nco.variables[var][:] =outarr
+		outarrnm = np.array(outarr)			
+		print var, [outarrnm.min(),outarrnm.max()],	'(no mask)'		
+		outarr = marray(outarr)
+		print var, [outarr.min(),outarr.max()], '(masked)'
+		if self.debug: print 'convertToOneDNC:\tINFO:\tSaving var:',var, arr.shape, '->', outarr.shape , 'coords:',len(sorted_Coords), [outarr.min(),outarr.max()]
+		nco.variables[var][:] = outarr
 		nco.sync()	
 	# Close netcdfs:
 	nco.close()
 	nci.close()
 	if self.debug: print 'convertToOneDNC:\tINFO:\tsuccessfully created:\t', self.fno
+	
+	#nc = Dataset(self.fno, 'r')
+	#lon = nc.variables['lon'][:]
+	#print lon.min(), lon.max()
+	#if self.fno.find('Model')>-1:	assert 0
 	return				
 
 

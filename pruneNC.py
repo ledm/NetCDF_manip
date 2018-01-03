@@ -41,13 +41,14 @@ from alwaysInclude import alwaysInclude
 
 
 class pruneNC:
-  def __init__(self, filenameIn, filenameOut, variables, depthInt = False, timemean=False, debug=False):
-	self.fni=filenameIn
-	self.fno=filenameOut
-	self.vars=variables
-	self.depthInt=depthInt
-	self.timemean=timemean		#take mean of entire time series. Ideal for turning a daily file into a monthly file.
-	self.debug=debug
+  def __init__(self, filenameIn, filenameOut, variables, depthInt = False, timemean=False, timeindex=False,debug=False):
+	self.fni	= filenameIn
+	self.fno	= filenameOut
+	self.vars	= variables
+	self.depthInt	= depthInt
+	self.timemean	= timemean		#take mean of entire time series. Ideal for turning a daily file into a monthly file.
+	self.timeindex	= timeindex
+	self.debug	= debug
 	self.run()
 
   def run(self):	
@@ -102,7 +103,7 @@ class pruneNC:
 		  print 'pruneNC:\tWarning:\tNo long_name for ', var
 		  long_name = var
 		  
-		if self.timemean: long_name.replace('Daily', 'Monthly')	
+		#if self.timemean: long_name.replace('Daily', 'Monthly')	
 		nco.variables[var].long_name=long_name
 		if self.debug: print 'pruneNC:\t Adding long_name for ', var, long_name
 		  
@@ -116,14 +117,30 @@ class pruneNC:
 		if self.debug: print 'pruneNC:\tINFO:\tCopying ', var, ' ...' 
 		arr = nci.variables[var][:]
 		
-		if self.timemean and len(intersection(['time','t'], nci.variables[var].dimensions)):
-			if self.debug: print 'pruneNC:\tInfo:\tSaving time averaged var:',var
-			arr = marray([arr.mean(0),])
-			while len(arr.shape) < len(nci.variables[var].dimensions): arr = marray(arr[None,:])
-			
+		if len(intersection(['time','t'], nci.variables[var].dimensions)):
+			#####
+			# Take the time mean of the whole file
+			if self.timemean:
+				if self.debug: print 'pruneNC:\tInfo:\tSaving time averaged var:',var
+				arr = marray([arr.mean(0),])
+				#while len(arr.shape) < len(nci.variables[var].dimensions): arr = marray(arr[None,:])
+			if self.timeindex == None: pass
+			else:	
+				#####
+				# time index is an integer
+				if type(self.timeindex)	 in [type(1), type(1.)]:
+					arr = marray(arr[self.timeindex])
+					if self.debug: print "pruneNC:\t",self.timeindex, arr.shape
+				#####
+				# time index is a slice
+				if type(self.timeindex) == type(slice(0,1,)):
+					arr = marray(arr[self.timeindex]).mean(0)
+			# make sure it's the right shaped array
+			while len(arr.shape) < len(nci.variables[var].dimensions): 
+				arr = marray(arr[None,...])				
+
 		if self.debug: print 'pruneNC:\tInfo:\tSaving var:',var, arr.shape, '\tdims:', nci.variables[var].dimensions
 		nco.variables[var][:] =arr
-
 	# Close netcdfs:
 	nco.close()
 	nci.close()

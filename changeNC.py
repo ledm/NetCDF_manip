@@ -226,8 +226,8 @@ class changeNC:
 	# Fill Values:
 	if self.debug: print 'changeNC:\tINFO:\tAbout to start Filling with new data:', newVars	
 	for var in newVars:
+		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'].shape, 'with new data', nco.variables[var][:].shape
 		nco.variables[var][:] = self.av['newVar'][var]['newData']
-		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'].shape, 'with new data'
 	for var in keys:
 		if var in newVars:continue 	
 		newname = var

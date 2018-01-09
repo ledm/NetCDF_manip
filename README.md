@@ -1,5 +1,4 @@
 # NetCDF manipulation toolkit
-============
 
 A toolkit to assist with the manipulating netcdf files in python. 
 They take fairly simple commands to run, but should be fairly powerful.
@@ -9,25 +8,33 @@ These tools can be used to
 * Renaming varaibles
 * Creating 1D profiles from 3D data.
 
-
+## pruneNC.py
+This tool is one of the simpler ones. 
+It makes a copy of a netcdf file, but with a reduced number of variables. 
+Mostly to reduce the total size of the file.
 
 ## changeNC.py
-This tool creates a new netcdf file, but simple changes can be made. Ie rename a variable, change the units, add attributes, multiply by 1000, etc.
+This tool creates a new netcdf file, based on an input file. 
+It allows multiple simple changes can be made. 
+Ie rename a variable, change the units, add attributes,
+ add a new dimension, or extract a specific region, extract multiply by 1000, etc.
+It can do several of these things at once. 
+The instructions on how to use changeNC are provided in the file's comments.
+
 
 ## mergeNC.py
-This tool  takes a list of netcdf files and merges them into one, provided they use the same grid, and contain the same variables.
+This tool  takes a list of netcdf files and merges them into one, 
+provided they use the same grid, and contain the same variables.
 
-## pruneNC.py
-This tool  Copies variables from a netcdf file. Mostly to reduce the total size of the file.
 
 ## depthProfileNC.py
-This tool  Creates a 1D profile netcdf at a specified location. Does not yet work for lat long coords, only grid index.
+This tool creates a 1D profile netcdf at a specified location. 
+
 
 ## depthManipNC.py
 This tool is a bit built for a single project and and does some unusual things with depth integration. 
 Unfortunately, this tool is the least stable, but it is the one I used to make surface/depth integration data.
 It is built for purpose, and may not be suitable for other uses.
-
 
 
 # Installation
@@ -50,7 +57,12 @@ In .cshrc:
 setenv PYTHONPATH ${PYTHONPATH}:$HOME/local/lib/netcdf_manip
 ```
 
-
+Your python environment will now be able to find these scripts.
+Test this by importing one of tools in python with:
+```
+python
+from pruneNC import pruneNC
+```
 
 # License
 

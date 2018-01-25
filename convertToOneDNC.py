@@ -283,11 +283,8 @@ class convertToOneDNC:
 			 
 		outarr = []
 		if arr.ndim ==1 and len(sorted_Coords[0][0]) == 4:
-<<<<<<< HEAD
 			if var.lower() in ['time','time_counter','t','month', 'time_centered']:	d = 0
-=======
 			if var.lower() in timeNames:	d = 0
->>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 			if var.lower() in depthNames:	d = 1
 			if var.lower() in latnames:	d = 2			
 			if var.lower() in lonnames: 	d = 3
@@ -309,11 +306,8 @@ class convertToOneDNC:
 			except: var, "not found"
 						
 		elif arr.ndim ==1 and len(sorted_Coords[0][0]) ==3:
-<<<<<<< HEAD
 			if var.lower() in ['time','time_counter','t','month','time_centered',]:	d = 0
-=======
 			if var.lower() in timeNames:	d = 0
->>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 			#if var.lower() in depthNames:		d = 1
 			if var.lower() in latnames:	d = 1			
 			if var.lower() in lonnames: 	d = 2

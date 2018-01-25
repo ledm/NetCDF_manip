@@ -48,12 +48,15 @@ def completeList(alist):
 
 depthNames	= [	'depth','DEPTH','Depth',
 			'deptht','depthu','depthv','depthw',
-			'lev','nav_lev',
+			'lev','nav_lev', 'level',
 			'Pressure','pressure','PRESSURE',
 			'index_z',
 			'level',
 			'z',
 		  ]
+
+
+
 depthNames = completeList(depthNames)
 
 timeNames = ['time','date','month','index_t','timePlot','time_centered','time_counter',] 
@@ -101,15 +104,5 @@ alwaysInclude = completeList(alwaysInclude)
 
 
 
-
-<<<<<<< HEAD
-depthNames	= [	'depth','DEPTH','Depth',#'deptht_bounds',
-			'deptht','depthu','depthv','depthw',
-			'lev','nav_lev','level',
-			'Pressure','pressure','PRESSURE',
-			'index_z',
-		  ]
-=======
->>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 
 

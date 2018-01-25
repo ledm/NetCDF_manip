@@ -98,16 +98,13 @@ class mergeNC:
 	except: nco.Notes = appendToDesc
 	
 	# list of variables to save, assuming some conventions
-<<<<<<< HEAD
-	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
-			 't','nav_lat','nav_lon', 'time_counter','time_centered', 
-			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth','deptht_bounds',
-			  'lat_bnds',  'lon_bnds', 'depth_bnds',
-			  'ensemble',]
-	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
-=======
+#	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
+#			 't','nav_lat','nav_lon', 'time_counter','time_centered', 
+#			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth','deptht_bounds',
+#			  'lat_bnds',  'lon_bnds', 'depth_bnds',
+#			  'ensemble',]
+#	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	alwaysInclude = intersection(nci.variables.keys(),alwaysIncludList) 
->>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 	save = list(set(sorted(alwaysInclude + self.vars)))
 	time = intersection(['time', 't','time_counter','month','time_centered',], alwaysInclude)
 	tvars = []	
@@ -240,21 +237,12 @@ class mergeNC:
 	if self.timeAverage: 
 	    for var in a.keys():
 		if self.debug: print "mergeNC:\tINFO\tTime Average:", var 
-		
-<<<<<<< HEAD
-		if var in tvars:
-			nco.variables[var][:] = [array(a[var]).mean(),]	
-		else:
-			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
-			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ",var, array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
-=======
 		if var in timeNames:
 			nco.variables[tvar][:] = [array(a[var]).mean(),]	
 		else:
 			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
 			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", var
 			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
->>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 			try:	
 				
 				timeAverageArr = np.ma.array(a[var])

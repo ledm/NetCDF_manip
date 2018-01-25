@@ -174,15 +174,19 @@ class changeNC:
 			if self.debug: print 'changeNC:\tINFO:\tremoving variable: ',var
 			continue
 		dimensions 	= list(nci.variables[var].dimensions)
-		vartype 	= nci.variables[var].dtype
 		
+		if self.av[var]['dtype']=={}:	
+			vartype 	= nci.variables[var].dtype
+		else:	vartype 	= self.av[var]['dtype']
+		
+			
 		for d,dim in enumerate(dimensions):
 			if self.av['dim'][dim]['name']: dimensions[d] = self.av['dim'][dim]['name']
 			
 		if self.av[var]['newDims']: dimensions = self.av[var]['newDims']
 
       		nco.createVariable(newname, vartype, tuple(dimensions),zlib=True,complevel=5)
-	  	if self.debug: print 'changeNC:\tINFO:\tadding variable: ',var,'-->', newname, '\t(',dimensions,')'
+	  	if self.debug: print 'changeNC:\tINFO:\tadding variable: ',var,'-->', newname, '\t(',dimensions,')', '\tvartype:',vartype
 	  
 	# Long Names:
 	for var in newVars:
@@ -222,8 +226,8 @@ class changeNC:
 	# Fill Values:
 	if self.debug: print 'changeNC:\tINFO:\tAbout to start Filling with new data:', newVars	
 	for var in newVars:
+		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'].shape, 'with new data', nco.variables[var][:].shape
 		nco.variables[var][:] = self.av['newVar'][var]['newData']
-		if self.debug: print 'changeNC:\tINFO:\tFilling ', var, ' ...',self.av['newVar'][var]['newData'].shape, 'with new data'
 	for var in keys:
 		if var in newVars:continue 	
 		newname = var

@@ -21,6 +21,54 @@
 # If not, see <http://opensource.org/licenses/BSD-3-Clause>.
 #
 
+"""
+.. module:: Coordinates Lists
+   :platform: Unix
+   :synopsis: A set of lists for the code to understand the differences 
+   	      between dimensions, with lists of lats, lon, depths, etc.
+.. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
+
+"""
+
+def completeList(alist):
+	"""
+	This takes a list of strings, and extends the list
+	with lots of permutations of uppercase/lowercase/title formattings.
+	"""
+	alist = list(alist)
+	alist.extend([l+'s' for l in alist])	# add an s on the end, just in case
+	list2 = alist[:]
+	list2.extend([t.lower() for t in alist])
+	list2.extend([t.upper() for t in alist])
+	list2.extend([t.title() for t in alist])	
+	d = {l:1 for l in list2} 	# cast to a dict to remove duplicates
+	return sorted(d.keys())
+	
+
+
+depthNames	= [	'depth','DEPTH','Depth',
+			'deptht','depthu','depthv','depthw',
+			'lev','nav_lev',
+			'Pressure','pressure','PRESSURE',
+			'index_z',
+			'level',
+			'z',
+		  ]
+depthNames = completeList(depthNames)
+
+timeNames = ['time','date','month','index_t','timePlot','time_centered','time_counter',] 
+timeNames = completeList(timeNames)
+
+
+latnames = ['lat','latitude','latbnd','nav_lat','y',u'lat','rlat','j']
+latnames = completeList(latnames)
+
+lonnames = ['lon','longitude','lonbnd','nav_lon','x',u'lon','rlon','i',]
+lonnames = completeList(lonnames)
+
+
+
+
 alwaysInclude = [	'time', 'lat','lon', 
 			'Time','Lat','Lon',
 			'TIME','LAT','LON',
@@ -35,12 +83,33 @@ alwaysInclude = [	'time', 'lat','lon',
 			'index','index_x','index_y','index_z','index_t',
 			'level',
 			]
+alwaysInclude.extend(timeNames)
+alwaysInclude.extend(lonnames)
+alwaysInclude.extend(latnames)
+alwaysInclude.extend(depthNames)
+alwaysInclude = completeList(alwaysInclude)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
 depthNames	= [	'depth','DEPTH','Depth',#'deptht_bounds',
 			'deptht','depthu','depthv','depthw',
 			'lev','nav_lev','level',
 			'Pressure','pressure','PRESSURE',
 			'index_z',
 		  ]
+=======
+>>>>>>> 2fec60ffffbd2c843d53b38f3208c04d92469fc4
 
 

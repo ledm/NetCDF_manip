@@ -46,7 +46,9 @@ from datetime import date
 from getpass import getuser
 from os.path import exists
 from numpy.ma import array as marray
-from numpyXtns import point_inside_polygon
+try:
+	from numpyXtns import point_inside_polygon
+assert: print "numpyXtns: not available."
 
 class depthProfileNC:
   def __init__(self, filenameIn, filenameOut, variables, profilelocation=[0,0],  debug=False):

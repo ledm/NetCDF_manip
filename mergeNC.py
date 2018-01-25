@@ -98,16 +98,24 @@ class mergeNC:
 	
 	# list of variables to save, assuming some conventions
 	alwaysInclude = ['time', 'lat','lon', 'latbnd', 'lonbnd', 'latitude', 'Latitude', 'longitude', 'Longitude',
-			 't','nav_lat','nav_lon', 'time_counter', 
-			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth'
+			 't','nav_lat','nav_lon', 'time_counter','time_centered', 
+			 'deptht','depth','depthu','depthv', 'depthw','z','month','bathymetry','Depth','deptht_bounds',
 			  'lat_bnds',  'lon_bnds', 'depth_bnds',
 			  'ensemble',]
 	alwaysInclude = intersection(nci.variables.keys(),alwaysInclude) 
 	save = list(set(sorted(alwaysInclude + self.vars)))
-	time = intersection(['time', 't','time_counter','month',], alwaysInclude)
-	if len(time) ==1: tvar=time[0]
-	else: tvar = 'time'
-	
+	time = intersection(['time', 't','time_counter','month','time_centered',], alwaysInclude)
+	tvars = []	
+	if len(time) ==1: 
+		tvar=time[0]
+		tvars = [tvar,]
+	elif not len(time): 
+		tvar = 'time'
+                tvars = [tvar,]
+	else: 
+                tvar  = time[0]
+		tvars = time
+		
 	missing = {}
 	if self.fullCheck:
 	    if self.debug: print 'mergeNC:\tINFO:\tPerforming full check for missing entries'
@@ -178,14 +186,14 @@ class mergeNC:
 	# Fill Values:
 	for var in alwaysInclude:
 		#if var in time:continue
-		if var == tvar:continue # there may be more than one time variable: ie time and month.
+		if var in tvars:continue # there may be more than one time variable: ie time and month.
 		if self.debug: print 'mergeNC:\tINFO:\tCopying ', var, ' ...', nci.variables[var][:].shape
 		try:nco.variables[var][:] = nci.variables[var][:].data
 		except:nco.variables[var][:] = nci.variables[var][:]
 	nci.close()
 	
 	a={}
-	a[tvar] = []
+	for t in tvars:	a[t] = []
 	for var in save:
 		if var in alwaysInclude: continue
 		a[var]=[]
@@ -195,18 +203,19 @@ class mergeNC:
 		nci = Dataset(fni,'r')
 		
 		#times:
-		try:
-		  tval = num2date(nci.variables[tvar][:],nci.variables[tvar].units,calendar=self.cal)		
-		  a[tvar].extend( date2num(tval,nco.variables[tvar].units,calendar=self.cal))
-		except:
-		  a[tvar].extend(nci.variables[tvar][:])
+		for t in tvars:
+			try:
+			  tval = num2date(nci.variables[t][:],nci.variables[t].units,calendar=self.cal)		
+			  a[t].extend( date2num(tval,nco.variables[t].units,calendar=self.cal))
+			except:
+			  a[t].extend(nci.variables[t][:])
 		
 		if self.debug: print 'mergeNC:\tINFO:\tTIME:',t, tvar, array(a[tvar]).shape
 
 		# not time:
 		for var in a.keys():
 		  #if var in time:continue
-		  if var == tvar:continue # there may be more than one time variable: ie time and month.		  
+		  if var in tvars:continue # there may be more than one time variable: ie time and month.		  
 		  if var in nci.variables.keys(): arr = nci.variables[var][:]
 		  else:
 	  	    	print 'mergeNC:\tWARNING:', fni,' is missing variable:',var, nco.variables[var][0,:].shape
@@ -226,11 +235,11 @@ class mergeNC:
 	    for var in a.keys():
 		if self.debug: print "mergeNC:\tINFO\tTime Average:", var 
 		
-		if var == tvar:
-			nco.variables[tvar][:] = [array(a[var]).mean(),]	
+		if var in tvars:
+			nco.variables[var][:] = [array(a[var]).mean(),]	
 		else:
 			#nco.variables[var][:] = array(a[var])[None,:]/float(len(self.fnsi)) # assumes one month per file.
-			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ", array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
+			if self.debug: print "mergeNC:\tINFO\tTime Average: shape shift: ",var, array(a[var]).shape , '-->',array(a[var]).mean(0)[None,:].shape
 			try:	
 				timeAverageArr = np.ma.array(a[var])
 				timeAverageArr = np.ma.masked_where(timeAverageArr.mask +(timeAverageArr > 9.969e+36),timeAverageArr)

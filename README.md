@@ -8,6 +8,8 @@ These tools can be used to
 * Renaming varaibles
 * Creating 1D profiles from 3D data.
 
+Note that PML's gitlab server is now closed and this is hosted on github froim 8/4/22.
+
 ## pruneNC.py
 This tool is one of the simpler ones. 
 It makes a copy of a netcdf file, but with a reduced number of variables. 
